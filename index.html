@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Easy Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;600;700;900&family=Kanit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── THEME: White/Light ── */
+:root{
+  --R:#e8192c;--Rd:#c0141f;--Rl:rgba(232,25,44,.07);--Rm:rgba(232,25,44,.13);
+  --G:#16a34a;--Gl:#dcfce7;--O:#d97706;--Ol:#fef3c7;
+  --B:#2563eb;--Bl:#dbeafe;
+  /* Light theme */
+  --bg:#f2f4f8;--bg2:#ffffff;--bg3:#f7f8fa;
+  --w:#ffffff;--w2:#f7f8fa;
+  --t:#0f172a;--t2:#475569;--t3:#94a3b8;
+  --br:#e8ecf0;--br2:#d0d7e0;
+  --nav:58px;--bot:70px;
+  --s1:0 1px 3px rgba(0,0,0,.06);--s2:0 4px 16px rgba(0,0,0,.08);--s3:0 10px 40px rgba(0,0,0,.12);
+  --sR:0 4px 20px rgba(232,25,44,.28);
+  --accent:#e8192c;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;font-family:'Kanit','Noto Sans Lao',sans-serif;background:var(--bg);color:var(--t);overflow-x:hidden;}
+input,button,select{font-family:inherit;}img{display:block;}::-webkit-scrollbar{width:0;}
+.page{display:none!important;min-height:100vh;}
+.page.on{display:block!important;}
+/* เพิ่ม padding-bottom ให้ทุกหน้าเพื่อไม่ให้ถูกแถบเมนูบัง */
+#pH, #pG, #pD, #pR, #pA, #pP, #pHist, #pHelp, #pWallet {
+    padding-bottom: calc(var(--bot) + 80px);
+}
+/* FOOTER */
+.site-footer{margin:8px 14px 0;padding:20px 16px 24px;text-align:center;border-top:1px solid var(--br);}
+.footer-logo{font-size:15px;font-weight:900;color:var(--t);margin-bottom:4px;}
+.footer-sub{font-size:11px;color:var(--t3);margin-bottom:10px;}
+.footer-links{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;}
+.footer-links span{font-size:11px;color:var(--accent);cursor:pointer;font-weight:600;}
+.footer-links span:hover{text-decoration:underline;}
+.fdot{color:var(--t3);font-size:11px;}
+.footer-copy{font-size:10px;color:var(--t3);}
+.page.on{display:block!important;animation:pIn .26s ease both;}
+.page.on.auth-new{display:flex!important;}
+.page.back{animation:pBack .26s ease both;}
+@keyframes pIn{from{opacity:0;transform:translateX(22px);}to{opacity:1;transform:none;}}
+@keyframes pBack{from{opacity:0;transform:translateX(-22px);}to{opacity:1;transform:none;}}
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;height:var(--nav);background:var(--bg2);border-bottom:1px solid var(--br);display:flex;align-items:center;padding:0 14px;gap:10px;box-shadow:0 2px 12px rgba(0,0,0,.3);}
+.ham{background:none;border:none;padding:7px;display:flex;flex-direction:column;gap:5px;border-radius:10px;cursor:pointer;transition:background .18s;}
+.ham:hover{background:var(--bg3);}
+.ham span{display:block;width:20px;height:2px;background:var(--t);border-radius:2px;transition:.3s;}
+.ham.x span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.ham.x span:nth-child(2){opacity:0;}
+.ham.x span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.nav-title{flex:1;font-size:15px;font-weight:800;color:var(--t);}
+.nav-r{display:flex;align-items:center;gap:8px;}
+.nav-wallet{display:flex;align-items:center;gap:5px;background:#f0f1f3;border:1.5px solid var(--br);border-radius:20px;padding:5px 12px;cursor:pointer;transition:background .15s;}
+.nav-wallet:active{background:var(--br);}
+.nav-wallet svg{color:var(--R);}
+.nav-wallet span{font-size:12px;font-weight:700;color:#16a34a;}
+.nav-login{background:var(--R);border:none;color:#fff;font-weight:700;font-size:12px;padding:8px 14px;border-radius:50px;box-shadow:var(--sR);cursor:pointer;transition:transform .15s;}
+.nav-login:active{transform:scale(.95);}
+.av{width:34px;height:34px;border-radius:50%;background:var(--R);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.3);cursor:pointer;transition:transform .15s;box-shadow:var(--sR);}
+.av:active{transform:scale(.93);}
+/* DRAWER - dark */
+.dov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;backdrop-filter:blur(4px);}
+.dov.on{display:block;}
+.drw{position:fixed;top:0;left:0;bottom:0;width:272px;background:var(--bg2);z-index:201;transform:translateX(-100%);transition:transform .32s cubic-bezier(.4,0,.2,1);border-right:1px solid var(--br);box-shadow:6px 0 30px rgba(0,0,0,.4);display:flex;flex-direction:column;}
+.drw.on{transform:translateX(0);}
+.dh{background:var(--bg3);padding:24px 16px 18px;flex-shrink:0;position:relative;border-bottom:1px solid var(--br);}
+.db{color:var(--t);font-size:20px;font-weight:900;}
+.dtag{color:var(--t3);font-size:10px;margin-top:2px;}
+.duc{background:var(--bg2);border-radius:12px;padding:11px 12px;margin-top:14px;display:none;align-items:center;gap:10px;border:1px solid var(--br);}
+.duc.on{display:flex;}
+.dua{width:34px;height:34px;border-radius:50%;background:var(--R);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;}
+.dc{position:absolute;top:14px;right:14px;background:var(--bg2);border:1px solid var(--br);color:var(--t2);width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .18s;font-weight:700;}.dc:hover{background:var(--br);}
+.dmid{flex:1;overflow-y:auto;padding:8px 0;}
+.di{display:flex;align-items:center;gap:12px;padding:13px 18px;color:var(--t2);font-size:14px;font-weight:600;cursor:pointer;transition:background .15s,color .15s;border-radius:10px;margin:2px 8px;}
+.di:hover{background:var(--bg3);color:var(--t);}
+.dic{width:34px;height:34px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
+.dfoot{padding:14px;border-top:1px solid var(--br);flex-shrink:0;}
+.dadm{background:linear-gradient(135deg,var(--R),var(--Rd));border:none;color:#fff;font-weight:700;font-size:13px;padding:13px;border-radius:12px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:var(--sR);}
+.dloginbtn{background:var(--bg3);border:1px solid var(--br);color:var(--t);font-weight:700;font-size:13px;padding:13px;border-radius:12px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;}
+/* BOT NAV - dark */
+.bot{position:fixed;bottom:0;left:0;right:0;height:var(--bot);background:var(--bg2);border-top:1px solid var(--br);display:flex;align-items:center;padding:0 4px 6px;z-index:50;box-shadow:0 -4px 24px rgba(0,0,0,.3);}
+.bni{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;padding:5px 2px;border-radius:16px;transition:background .18s;cursor:pointer;}
+.bni:active{background:var(--bg3);}
+.bni.on .bic{background:var(--R);color:#fff;box-shadow:var(--sR);}
+.bni.on .bnl{color:var(--R);}
+.bic{width:42px;height:42px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;color:var(--t3);transition:all .2s;}
+.bnl{font-size:10px;color:var(--t3);font-weight:600;}
+/* NOTIF */
+#ntfWrap{position:fixed;bottom:calc(var(--bot)+12px);left:50%;transform:translateX(-50%);z-index:9990;display:flex;flex-direction:column-reverse;align-items:center;gap:8px;pointer-events:none;width:100%;max-width:420px;padding:0 16px;}
+.ntf{width:100%;background:var(--w2);border-radius:20px;padding:16px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 24px rgba(0,0,0,.4);pointer-events:all;transform:translateY(110%) scale(.96);opacity:0;transition:transform .42s cubic-bezier(.34,1.56,.64,1),opacity .3s ease;position:relative;overflow:hidden;border:1px solid var(--br);}
+.ntf.in{transform:translateY(0) scale(1);opacity:1;}
+.ntf.out{transform:translateY(30px) scale(.96);opacity:0;transition:transform .28s ease,opacity .22s ease;}
+.ntf::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:20px 0 0 20px;}
+.ntf.ok::before{background:#16a34a;}.ntf.err::before{background:var(--R);}.ntf.warn::before{background:#d97706;}.ntf.info::before{background:#2563eb;}
+.ntf-ico{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ntf.ok .ntf-ico{background:rgba(22,163,74,.15);color:#16a34a;}
+.ntf.err .ntf-ico{background:rgba(232,25,44,.15);color:var(--R);}
+.ntf.warn .ntf-ico{background:rgba(217,119,6,.15);color:#d97706;}
+.ntf.info .ntf-ico{background:rgba(37,99,235,.15);color:#2563eb;}
+.ntf-ck{stroke-dasharray:22;stroke-dashoffset:22;animation:ntfCkDraw .38s .18s ease forwards;}
+@keyframes ntfCkDraw{to{stroke-dashoffset:0;}}
+.ntf-body{flex:1;min-width:0;}
+.ntf-ttl{font-size:14px;font-weight:800;color:var(--t);}
+.ntf-sub{font-size:12px;color:var(--t2);margin-top:2px;}
+.ntf-prog-wrap{position:absolute;bottom:0;left:4px;right:0;height:2px;background:var(--br);overflow:hidden;}
+.ntf-prog{height:100%;transform-origin:left;animation:ntfProg var(--nd,3.2s) .1s linear forwards;}
+@keyframes ntfProg{to{transform:scaleX(0);}}
+.ntf.ok .ntf-prog{background:#16a34a;}.ntf.err .ntf-prog{background:var(--R);}
+.ntf.warn .ntf-prog{background:#d97706;}.ntf.info .ntf-prog{background:#2563eb;}
+/* SUCCESS POPUP */
+.spov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:800;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.spov.on{display:flex;}
+.spbox{background:var(--w2);border-radius:28px;width:82%;max-width:300px;padding:44px 28px 32px;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.5);border:1px solid var(--br);transform:scale(.82) translateY(20px);opacity:0;transition:transform .38s cubic-bezier(.34,1.56,.64,1),opacity .28s ease;}
+.spov.on .spbox{transform:scale(1) translateY(0);opacity:1;}
+.spring{width:88px;height:88px;border-radius:50%;background:rgba(22,163,74,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;position:relative;}
+.spring::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:3px solid var(--G);transform:scale(0);opacity:0;animation:ringpop .44s .05s cubic-bezier(.34,1.56,.64,1) forwards;}
+@keyframes ringpop{to{transform:scale(1);opacity:1;}}
+.spcheck{stroke-dasharray:28;stroke-dashoffset:28;animation:drawck .38s .35s ease forwards;}
+@keyframes drawck{to{stroke-dashoffset:0;}}
+.spt{font-size:24px;font-weight:900;color:var(--t);margin-bottom:6px;}
+.sps{font-size:13px;color:var(--t2);}
+.spbar{height:3px;background:var(--br);border-radius:2px;margin-top:20px;overflow:hidden;}
+.spprog{height:100%;background:var(--G);border-radius:2px;animation:drain 2.4s .2s linear forwards;transform-origin:left;}
+@keyframes drain{to{transform:scaleX(0);}}
+/* POPUP */
+.pupov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:850;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.pupov.on{display:flex;}
+.pupov.closing{animation:pupFadeOut .5s ease forwards;}
+@keyframes pupFadeOut{to{opacity:0;}}
+.pupbox{background:transparent;border-radius:20px;width:85%;max-width:340px;position:relative;transform:scale(.88);opacity:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s ease;}
+.pupov.on .pupbox{transform:scale(1);opacity:1;}
+.pupbox img{width:100%;display:block;border-radius:16px;object-fit:contain;max-height:70vh;}
+.pupbox-close{position:absolute;top:-10px;right:-10px;width:34px;height:34px;border-radius:50%;background:var(--R);border:2.5px solid var(--bg2);color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--sR);z-index:2;font-weight:800;}
+/* SHEET */
+.sov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:700;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.sov.on{display:flex;}
+.sheet{background:var(--w);border-radius:24px 24px 0 0;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .34s cubic-bezier(.25,.46,.45,.94);border:1px solid var(--br);}
+.sov.on .sheet{transform:translateY(0);}
+.sh-handle{width:40px;height:4px;background:var(--br2);border-radius:2px;margin:12px auto 0;}
+.sh-hd{padding:16px 20px 14px;border-bottom:1px solid var(--br);}
+.sh-title{font-size:17px;font-weight:800;color:var(--t);}
+.sh-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.sh-body{padding:16px 20px;}
+.sh-foot{padding:0 20px 24px;}
+.crow{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--br);}
+.crow:last-child{border-bottom:none;}
+.clbl{font-size:13px;color:var(--t3);}
+.cval{font-size:14px;font-weight:700;text-align:right;max-width:62%;color:var(--t);}
+.cval.big{font-size:18px;font-weight:900;color:var(--R);}
+.cval.mono{font-family:monospace;background:var(--bg3);padding:3px 10px;border-radius:6px;font-size:13px;}
+/* discount row */
+.crow.disc .cval{color:#16a34a;}
+.btn-cfm{width:100%;background:var(--R);border:none;color:#fff;font-weight:800;font-size:16px;padding:16px;border-radius:14px;box-shadow:var(--sR);cursor:pointer;margin-bottom:10px;transition:transform .15s;}
+.btn-cfm:active{transform:scale(.97);}
+.btn-cxl{width:100%;background:var(--bg3);border:1px solid var(--br);color:var(--t2);font-weight:700;font-size:15px;padding:13px;border-radius:14px;cursor:pointer;}
+/* SLIDER */
+.slw{position:relative;overflow:hidden;touch-action:pan-y;}
+.sltr{display:flex;will-change:transform;}
+.slide{min-width:100%;height:184px;flex-shrink:0;overflow:hidden;}
+.slide img{width:100%;height:100%;object-fit:cover;}
+.slph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;}
+.slt{font-size:22px;font-weight:900;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.5);}
+.sls{font-size:12px;color:rgba(255,255,255,.85);background:rgba(0,0,0,.35);padding:4px 14px;border-radius:20px;}
+.sldots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2;}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4);cursor:pointer;transition:all .3s;}
+.dot.on{background:#fff;width:22px;border-radius:3px;}
+.slarr{position:absolute;top:50%;transform:translateY(-50%);z-index:2;background:rgba(0,0,0,.3);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;backdrop-filter:blur(4px);cursor:pointer;}
+.slarr.l{left:9px;}.slarr.r{right:9px;}
+/* SEC HEADER */
+.seh{display:flex;align-items:center;gap:10px;padding:20px 14px 11px;}
+.seic{width:34px;height:34px;border-radius:10px;background:var(--R);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--sR);}
+.set1{font-size:17px;font-weight:800;color:var(--t);}
+.set2{font-size:9px;font-weight:700;color:var(--R);letter-spacing:1px;margin-top:1px;}
+.semore{margin-left:auto;font-size:12px;color:var(--accent);font-weight:600;cursor:pointer;}
+/* POPULAR GRID */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 14px 18px;}
+.pc{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
+.pc:active{transform:scale(.93);}
+.pth{width:100%;aspect-ratio:1;border-radius:18px;overflow:hidden;position:relative;box-shadow:var(--s2);border:2px solid var(--br);}
+.pth img,.pph{width:100%;height:100%;object-fit:cover;}
+.pph{display:flex;align-items:center;justify-content:center;}
+.bhot{position:absolute;top:5px;right:5px;background:var(--R);color:#fff;font-size:8px;font-weight:800;padding:2px 6px;border-radius:5px;box-shadow:0 2px 6px rgba(232,25,44,.4);}
+.pname{font-size:11px;font-weight:700;text-align:center;color:var(--t2);}
+/* ALL GAMES */
+.srow{display:flex;align-items:center;gap:10px;padding:14px 14px 8px;}
+.srowtit{font-size:16px;font-weight:800;color:var(--t);white-space:nowrap;}
+.sbox{flex:1;display:flex;align-items:center;background:var(--bg3);border:1px solid var(--br);border-radius:24px;padding:9px 14px;gap:7px;transition:border-color .18s;}
+.sbox:focus-within{border-color:var(--accent);}
+.sbox input{background:none;border:none;outline:none;color:var(--t);font-size:13px;width:100%;}
+.sbox input::placeholder{color:var(--t3);}
+/* ALL GAMES HORIZONTAL LIST (like reference) */
+.agrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:4px 14px 20px;}
+.ac{border-radius:16px;overflow:hidden;position:relative;aspect-ratio:1;cursor:pointer;box-shadow:var(--s2);transition:transform .18s;border:1px solid var(--br);}
+.ac:active{transform:scale(.94);}
+.ac img,.aph{width:100%;height:100%;}
+.aph{display:flex;align-items:center;justify-content:center;}
+.alab{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.88));padding:18px 6px 7px;font-size:11px;font-weight:800;color:#fff;text-align:center;text-shadow:0 1px 4px rgba(0,0,0,.8);line-height:1.3;}
+.dv{height:6px;background:var(--bg3);border-top:1px solid var(--br);border-bottom:1px solid var(--br);}
+/* GAME DETAIL */
+.ghero{padding:24px 16px 30px;text-align:center;color:#fff;position:relative;overflow:hidden;min-height:200px;}
+.ghbg{position:absolute;inset:0;z-index:0;}
+.ghbl{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:1;}
+.ghc{position:relative;z-index:2;}
+.gic{width:86px;height:86px;border-radius:22px;overflow:hidden;margin:0 auto 12px;border:3px solid rgba(255,255,255,.2);box-shadow:0 6px 24px rgba(0,0,0,.5);}
+.gic img,.giph{width:100%;height:100%;}
+.giph{display:flex;align-items:center;justify-content:center;font-size:40px;}
+.gnm{font-size:22px;font-weight:900;text-shadow:0 2px 8px rgba(0,0,0,.4);}
+.gds{font-size:12px;opacity:.85;margin-top:3px;}
+/* STEP CARDS */
+.scard{background:var(--w);border-radius:20px;margin:10px 14px;padding:20px 16px;box-shadow:var(--s2);border:1px solid var(--br);}
+.steprow{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.stepn{background:var(--R);color:#fff;width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;box-shadow:0 2px 8px rgba(232,25,44,.3);}
+.stept{font-size:15px;font-weight:800;color:var(--t);}
+.flbl{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;}
+.fin{width:100%;border:1.5px solid var(--br);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--t);outline:none;background:var(--bg3);transition:all .18s;}
+.fin:focus{border-color:var(--accent);background:var(--bg2);box-shadow:0 0 0 3px rgba(59,130,246,.15);}
+/* PACKAGE GRID */
+.pkgg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pkc{border:1.5px solid var(--br);border-radius:16px;padding:14px 10px 12px;text-align:center;cursor:pointer;background:var(--bg3);transition:all .18s;position:relative;}
+.pkc:active{transform:scale(.95);}
+.pkc.on{border-color:var(--accent);background:rgba(59,130,246,.08);}
+.pkc.on::after{content:'✓';position:absolute;top:7px;right:9px;color:var(--accent);font-size:13px;font-weight:900;}
+.pkiw{width:52px;height:52px;margin:0 auto 8px;border-radius:12px;overflow:hidden;}
+.pkiw img{width:100%;height:100%;object-fit:cover;}
+.pkph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg2);border-radius:12px;font-size:26px;}
+.pknm{font-size:12px;font-weight:700;line-height:1.3;margin-bottom:4px;color:var(--t);}
+.pkpr{font-size:15px;font-weight:900;color:var(--R);} /* blue price */
+/* PAYMENT */
+.payo{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid var(--br);border-radius:14px;cursor:pointer;background:var(--bg3);transition:all .18s;margin-bottom:10px;}
+.payo.on{border-color:var(--R);background:var(--Rl);}
+.payic{width:40px;height:40px;border-radius:10px;background:var(--bg2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.paynm{font-size:14px;font-weight:700;color:var(--t);}
+.paysb{font-size:11px;color:var(--t3);margin-top:1px;}
+.payck{width:22px;height:22px;border-radius:50%;border:2px solid var(--br);display:flex;align-items:center;justify-content:center;margin-left:auto;transition:all .2s;flex-shrink:0;}
+.payo.on .payck{border-color:var(--R);background:var(--R);}
+/* DISCOUNT INPUT */
+.disc-wrap{margin-top:14px;display:flex;gap:8px;align-items:center;}
+.disc-wrap input{flex:1;border:1.5px solid var(--br);border-radius:12px;padding:11px 14px;font-size:13px;color:var(--t);background:var(--bg3);outline:none;transition:border-color .18s;}
+.disc-wrap input:focus{border-color:var(--accent);}
+.disc-wrap button{background:var(--accent);border:none;color:#fff;font-weight:700;font-size:13px;padding:11px 16px;border-radius:12px;cursor:pointer;white-space:nowrap;}
+.disc-tag{margin-top:8px;font-size:12px;color:#16a34a;font-weight:700;}
+.disc-err{margin-top:8px;font-size:12px;color:var(--R);font-weight:600;}
+/* ORDER BUTTON */
+.obtn{display:block;width:calc(100% - 28px);margin:16px 14px 30px;background:linear-gradient(135deg,var(--R),var(--Rd));border:none;color:#fff;font-weight:800;font-size:16px;padding:16px;border-radius:16px;box-shadow:var(--sR);cursor:pointer;transition:transform .15s;}
+.obtn:active{transform:scale(.97);}
+/* RECEIPT */
+.rhero{background:linear-gradient(135deg,#1a3a1a,#166534);padding:28px 20px 36px;text-align:center;color:#fff;}
+.ric2{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.15);border:3px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.rstat{font-size:22px;font-weight:900;margin-bottom:4px;}
+.roid{font-size:12px;opacity:.8;background:rgba(0,0,0,.2);display:inline-block;padding:4px 14px;border-radius:20px;margin-top:6px;letter-spacing:.5px;}
+.rcard{background:var(--w);border-radius:20px;margin:14px;padding:20px;box-shadow:var(--s2);border:1px solid var(--br);}
+.rgrw{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--br);}
+.rgic{width:48px;height:48px;border-radius:12px;overflow:hidden;flex-shrink:0;}
+.rgnm{font-size:16px;font-weight:800;color:var(--t);}
+.rgpk{font-size:12px;color:var(--t3);margin-top:2px;}
+.rrow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--br);}
+.rrow:last-child{border-bottom:none;}
+.rlbl{font-size:13px;color:var(--t3);}
+.rval{font-size:14px;font-weight:700;color:var(--t);}
+.rval.price{color:var(--R);}
+.rval.pend{color:var(--O);}
+.rval.done{color:var(--G);}
+.rval.mono{font-family:monospace;background:var(--bg3);padding:3px 10px;border-radius:6px;font-size:13px;}
+.rnote{background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.2);border-radius:12px;padding:12px 14px;margin:0 14px 14px;display:flex;gap:10px;align-items:flex-start;}
+.rnote p{font-size:12px;color:var(--O);line-height:1.5;}
+.ract{display:flex;gap:10px;padding:0 14px 14px;}
+.rbtn1{flex:1;background:var(--bg3);border:1px solid var(--br);color:var(--t);font-weight:700;font-size:14px;padding:13px;border-radius:12px;cursor:pointer;}
+.rbtn2{flex:1;background:var(--R);border:none;color:#fff;font-weight:700;font-size:14px;padding:13px;border-radius:12px;cursor:pointer;box-shadow:var(--sR);}
+/* AUTH */
+.authbg{background:var(--bg);}
+.aw{padding:20px 14px;}
+.acard{background:var(--w);border-radius:24px;padding:28px 22px 24px;box-shadow:var(--s2);border:1px solid var(--br);}
+.atop{text-align:center;margin-bottom:22px;}
+.aic{width:64px;height:64px;border-radius:18px;background:var(--R);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:var(--sR);}
+.abn{font-size:20px;font-weight:900;color:var(--t);}
+.atag2{font-size:12px;color:var(--t3);margin-top:4px;}
+.atabs{display:flex;background:var(--bg3);border-radius:14px;padding:4px;gap:4px;margin-bottom:20px;border:1px solid var(--br);}
+.atb{flex:1;padding:10px;border-radius:10px;border:none;background:transparent;font-size:14px;font-weight:700;color:var(--t3);cursor:pointer;transition:all .2s;}
+.atb.on{background:var(--R);color:#fff;box-shadow:var(--sR);}
+.ff{margin-bottom:14px;}
+.ff label{display:block;font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;}
+.ff input{width:100%;border:1.5px solid var(--br);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--t);background:var(--bg3);outline:none;transition:all .18s;}
+.ff input:focus{border-color:var(--accent);background:var(--bg2);}
+.ferr{font-size:11px;color:var(--R);margin-top:4px;display:none;}
+.ferr.on{display:block;}
+.abtn{width:100%;background:var(--R);border:none;color:#fff;font-weight:800;font-size:16px;padding:15px;border-radius:14px;cursor:pointer;box-shadow:var(--sR);margin-top:4px;transition:transform .15s;}
+.abtn:active{transform:scale(.97);}
+.asw{text-align:center;font-size:13px;color:var(--t3);margin-top:16px;}
+.asw b{color:var(--accent);cursor:pointer;}
+/* PROFILE */
+.ptop{background:var(--bg2);padding:28px 20px 28px;text-align:center;border-bottom:1px solid var(--br);}
+.pav{width:74px;height:74px;border-radius:50%;background:var(--bg3);color:var(--t);font-size:28px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;border:3px solid var(--br2);}
+.pnm2{font-size:18px;font-weight:800;color:var(--t);}
+.pem{font-size:12px;color:var(--t3);margin-top:3px;}
+.pbdg{display:inline-block;margin-top:8px;background:var(--bg3);color:var(--t2);font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;border:1px solid var(--br);}
+.pstats{display:flex;gap:0;margin-top:20px;background:var(--w);border-radius:16px;overflow:hidden;border:1px solid var(--br);}
+.pst{flex:1;padding:14px;text-align:center;border-right:1px solid var(--br);}
+.pst:last-child{border-right:none;}
+.psn{font-size:18px;font-weight:900;color:var(--t);}
+.psl{font-size:11px;color:var(--t3);margin-top:2px;}
+.mcard{background:var(--w);border-radius:20px;margin:16px 14px;overflow:hidden;border:1px solid var(--br);}
+.mi{display:flex;align-items:center;gap:12px;padding:16px 18px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--br);}
+.mi:last-child{border-bottom:none;}
+.mi:active{background:var(--bg3);}
+.miic{width:34px;height:34px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mit{font-size:14px;font-weight:700;color:var(--t);}
+.mis{font-size:12px;color:var(--t3);margin-top:2px;}
+.miarr{color:var(--t3);font-size:18px;}
+.admibdg{background:var(--R);color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;margin-left:6px;}
+.logbtn{width:calc(100% - 28px);margin:4px 14px 14px;background:var(--bg3);border:1px solid var(--br);color:var(--R);font-weight:700;font-size:14px;padding:14px;border-radius:14px;cursor:pointer;}
+/* WALLET PAGE */
+.wpage{padding:20px 14px;}
+.wcard{background:linear-gradient(145deg,#1a2035,#0f1628);border-radius:24px;padding:30px 24px;text-align:left;border:none;margin-bottom:16px;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.25);}
+.wcard::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(255,255,255,.05),transparent 60%);}
+.wamt{font-size:48px;font-weight:900;color:#fff;letter-spacing:-2px;}
+.wlbl{font-size:13px;color:rgba(255,255,255,.6);margin-top:4px;}
+.wunit{font-size:20px;font-weight:700;color:rgba(255,255,255,.6);margin-left:6px;}
+.wuser{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);border-radius:14px;padding:12px 16px;margin-top:18px;border:1px solid rgba(255,255,255,.15);}
+.wuav{width:38px;height:38px;border-radius:50%;background:var(--R);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:var(--sR);}
+.wunm{font-size:14px;font-weight:700;color:#fff;}
+.wuid{font-size:12px;color:rgba(255,255,255,.6);margin-top:2px;}
+.wsec-title{font-size:16px;font-weight:800;color:var(--t);margin-bottom:12px;margin-top:4px;display:flex;align-items:center;gap:8px;}
+.wopt{background:#fff;border-radius:16px;border:1.5px solid var(--br);padding:16px;margin-bottom:10px;cursor:pointer;transition:all .18s;box-shadow:var(--s1);}
+.wopt:active{background:var(--bg3);}
+.wopt-top{display:flex;align-items:center;gap:12px;}
+.wopt-ic{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.wopt-nm{font-size:15px;font-weight:700;color:var(--t);}
+.wopt-sb{font-size:12px;color:var(--t3);margin-top:2px;}
+.wopt-fee{display:inline-block;margin-top:6px;background:rgba(217,119,6,.12);color:#d97706;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;}
+.wopt-ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--br);margin-left:auto;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.wopt.on{border-color:var(--R);}
+.wopt.on .wopt-ck{background:var(--R);border-color:var(--R);}
+/* HISTORY */
+.hitem{background:var(--w);border-radius:16px;margin:0 14px 10px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--s1);border:1px solid var(--br);transition:transform .18s;}
+.hitem:active{transform:scale(.98);}
+.hic{width:44px;height:44px;border-radius:12px;overflow:hidden;flex-shrink:0;background:var(--bg3);}
+.hic img{width:100%;height:100%;object-fit:cover;}
+.hph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.hnm{font-size:14px;font-weight:800;color:var(--t);}
+.hpk{font-size:12px;color:var(--t3);margin-top:1px;}
+.htm2{font-size:11px;color:var(--t3);margin-top:2px;}
+.hid{font-size:10px;color:var(--t3);font-family:monospace;margin-top:2px;}
+.hr2{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.hpr{font-size:14px;font-weight:800;color:var(--R);}
+.st{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;}
+.stpend{background:rgba(217,119,6,.12);color:#d97706;}
+.stdone{background:rgba(22,163,74,.12);color:#16a34a;}
+.stfail{background:rgba(232,25,44,.12);color:var(--R);}
+/* HELP */
+.ct-card{padding:0 14px 14px;}
+.ct-item{display:flex;align-items:center;gap:14px;padding:16px;background:var(--w);border-radius:16px;margin-bottom:10px;text-decoration:none;border:1px solid var(--br);transition:background .15s;}
+.ct-item:active{background:var(--bg3);}
+.ct-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ct-ico.fb{background:#1877f2;}.ct-ico.tt{background:#000;}.ct-ico.wa{background:#25d366;}
+.ct-name{font-size:15px;font-weight:700;color:var(--t);}
+.ct-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.ct-arr{color:var(--t3);font-size:20px;}
+.help-empty{text-align:center;padding:48px 20px;color:var(--t3);}
+.help-empty p{font-size:14px;margin-top:12px;}
+.help-empty p.sub{font-size:12px;color:var(--t3);margin-top:4px;}
+/* ADMIN */
+#vAdm{display:none;min-height:100vh;background:var(--bg);padding-bottom:20px;}
+.admtop{background:var(--bg2);padding:18px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--br);}
+.admtop svg{color:var(--R);}
+.admtop h2{flex:1;font-size:16px;font-weight:800;color:var(--t);}
+.admback{background:var(--bg3);border:1px solid var(--br);color:var(--t2);font-size:13px;font-weight:700;padding:8px 14px;border-radius:10px;cursor:pointer;}
+.admtabs{display:flex;overflow-x:auto;padding:10px 12px;gap:6px;background:var(--bg2);border-bottom:1px solid var(--br);}
+.admtabs::-webkit-scrollbar{display:none;}
+.admt{padding:8px 14px;border-radius:10px;background:var(--bg3);color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;border:1px solid var(--br);display:flex;align-items:center;gap:5px;transition:all .18s;}
+.admt.on{background:var(--R);color:#fff;border-color:var(--R);}
+.admbody{padding:14px;}
+.asec{display:none;}.asec.on{display:block;}
+.admc{background:var(--w);border-radius:16px;padding:16px;border:1px solid var(--br);}
+.admc h3{font-size:15px;font-weight:800;color:var(--t);margin-bottom:12px;}
+.stg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;}
+.stb{background:var(--bg3);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--br);}
+.stn{font-size:22px;font-weight:900;color:var(--t);}
+.stl{font-size:10px;color:var(--t3);margin-top:2px;}
+.irow{display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:10px;margin-bottom:6px;border:1px solid var(--br);}
+.ric{width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--bg2);}
+.ric img{width:100%;height:100%;object-fit:cover;}
+.rph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;}
+.rinf{flex:1;min-width:0;}
+.rnm{font-size:13px;font-weight:700;color:var(--t);}
+.rsb{font-size:11px;color:var(--t3);margin-top:2px;}
+.rack{display:flex;gap:6px;flex-shrink:0;}
+.bed{background:rgba(59,130,246,.12);border:none;color:var(--accent);font-size:12px;font-weight:700;padding:6px 10px;border-radius:8px;cursor:pointer;}
+.bdl{background:rgba(232,25,44,.12);border:none;color:var(--R);font-size:12px;font-weight:700;padding:6px 10px;border-radius:8px;cursor:pointer;}
+.bad{background:var(--bg2);border:1px solid var(--br);color:var(--t2);font-size:13px;font-weight:700;padding:10px 14px;border-radius:10px;cursor:pointer;width:100%;text-align:center;margin-top:8px;}
+.ibox{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:10px 12px;font-size:12px;color:#60a5fa;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start;}
+.gitem{background:var(--bg3);border-radius:12px;margin-bottom:8px;overflow:hidden;border:1px solid var(--br);}
+.gitem-head{display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;}
+.gitem-head:hover{background:var(--bg2);}
+.gitem-body{display:none;padding:0 10px 10px;}
+.gitem-body.on{display:block;}
+.pkg-sub{border-top:1px solid var(--br);padding-top:10px;margin-top:4px;}
+.pkg-sub-title{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px;}
+.pkg-row{display:flex;align-items:center;gap:8px;background:var(--bg2);border-radius:8px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--br);}
+.prp{font-size:11px;color:var(--accent);font-weight:700;}
+/* EDIT SHEET */
+.eov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:750;align-items:flex-end;justify-content:center;}
+.eov.on{display:flex;}
+.esheet{background:var(--w);border-radius:24px 24px 0 0;width:100%;max-width:540px;padding:0 20px 36px;max-height:90vh;overflow-y:auto;border:1px solid var(--br);transform:translateY(100%);transition:transform .32s cubic-bezier(.25,.46,.45,.94);}
+.eov.on .esheet{transform:translateY(0);}
+.etitle{font-size:16px;font-weight:800;padding:20px 0 14px;color:var(--t);}
+.eaf label{display:block;font-size:12px;font-weight:700;color:var(--t2);margin-bottom:4px;}
+.eaf input,.eaf select{width:100%;border:1.5px solid var(--br);border-radius:12px;padding:11px 13px;font-size:14px;color:var(--t);background:var(--bg3);outline:none;margin-bottom:12px;transition:all .18s;}
+.eaf input:focus,.eaf select:focus{border-color:var(--accent);}
+.eact{display:flex;gap:10px;margin-top:6px;}
+.bsv{flex:1;padding:14px;background:var(--R);border:none;color:#fff;font-weight:700;font-size:14px;border-radius:12px;cursor:pointer;}
+.excl{flex:1;padding:14px;background:var(--bg3);border:1px solid var(--br);color:var(--t2);font-weight:700;font-size:14px;border-radius:12px;cursor:pointer;}
+.swrow{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.sw{position:relative;display:inline-block;width:44px;height:24px;}
+.sw input{opacity:0;width:0;height:0;}
+.swsl{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--br);border-radius:12px;transition:.3s;}
+.swsl::before{position:absolute;content:'';width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
+.sw input:checked+.swsl{background:var(--R);}
+.sw input:checked+.swsl::before{transform:translateX(20px);}
+.empty{text-align:center;padding:56px 20px;color:var(--t3);}
+.empty p{font-size:14px;font-weight:500;margin-top:12px;}
+.backbtn{background:var(--bg3);border:none;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;flex-shrink:0;border:1px solid var(--br);}
+.role-admin{background:rgba(232,25,44,.12);color:var(--R);font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;margin-left:6px;}
+.role-user{background:var(--bg3);color:var(--t2);font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:6px;}
+.af label{display:block;font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;margin-top:10px;}
+.af input{width:100%;border:1.5px solid var(--br);border-radius:12px;padding:11px 13px;font-size:13px;color:var(--t);background:var(--bg3);outline:none;transition:border-color .18s;}
+.af input:focus{border-color:var(--accent);}
+.adurow{display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:10px;margin-bottom:6px;border:1px solid var(--br);}
+.aduav{width:38px;height:38px;border-radius:50%;background:var(--R);color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+/* LOADING */
+#loader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .5s ease,visibility .5s ease;}
+#loader.hide{opacity:0;visibility:hidden;}
+.loader-logo{width:72px;height:72px;background:var(--R);border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sR);}
+.loader-name{font-size:22px;font-weight:900;color:var(--t);}
+.loader-spin{width:36px;height:36px;}
+.loader-spin circle{stroke:var(--br2);fill:none;stroke-width:3;}
+.loader-spin path{stroke:var(--R);fill:none;stroke-width:3;stroke-linecap:round;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ═══════════════════════════════════════
+   AUTH PAGE — NEW DESIGN
+═══════════════════════════════════════ */
+.auth-new{min-height:100vh;background:linear-gradient(160deg,#0a0a0a 0%,#1a0205 50%,#0a0a0a 100%);flex-direction:column;position:relative;overflow:hidden;}
+.auth-bg-art{position:absolute;inset:0;pointer-events:none;z-index:0;}
+.auth-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.35;}
+.auth-orb1{width:300px;height:300px;background:radial-gradient(circle,#e8192c,transparent 70%);top:-80px;right:-60px;}
+.auth-orb2{width:200px;height:200px;background:radial-gradient(circle,#ff6b35,transparent 70%);bottom:120px;left:-60px;}
+.auth-orb3{width:160px;height:160px;background:radial-gradient(circle,#e8192c,transparent 70%);top:40%;right:-40px;opacity:.2;}
+.auth-back-btn{position:absolute;top:16px;left:16px;z-index:10;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px);}
+.auth-wrap{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;padding:80px 20px 30px;}
+/* BRAND */
+.auth-brand{text-align:center;margin-bottom:36px;}
+.auth-logo-text{font-size:38px;font-weight:900;letter-spacing:-1px;line-height:1;font-family:'Kanit',sans-serif;}
+.auth-logo-e{background:linear-gradient(135deg,#ff4d6d,#e8192c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.auth-logo-asy{color:#fff;}
+.auth-logo-space{display:inline-block;width:8px;}
+.auth-logo-store{background:linear-gradient(135deg,#ff8c00,#e8192c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.auth-logo-line{width:40px;height:2px;background:linear-gradient(90deg,transparent,#e8192c,transparent);margin:10px auto 10px;border-radius:2px;}
+.auth-tagline{font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.35);font-weight:600;text-transform:uppercase;}
+/* CARD */
+.auth-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:28px 24px 24px;backdrop-filter:blur(20px);}
+/* TAB */
+.auth-tab-row{display:flex;position:relative;background:rgba(0,0,0,.3);border-radius:14px;padding:4px;margin-bottom:24px;gap:0;}
+.auth-tab{flex:1;padding:11px;border:none;background:transparent;color:rgba(255,255,255,.4);font-size:14px;font-weight:700;cursor:pointer;border-radius:10px;position:relative;z-index:2;transition:color .2s;font-family:'Kanit',sans-serif;}
+.auth-tab.on{color:#fff;}
+.auth-tab-slider{position:absolute;top:4px;left:4px;width:calc(50% - 4px);height:calc(100% - 8px);background:linear-gradient(135deg,#e8192c,#c0141f);border-radius:10px;transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:1;box-shadow:0 4px 16px rgba(232,25,44,.4);}
+/* FIELDS */
+.auth-field{display:flex;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;margin-bottom:12px;transition:border-color .18s;}
+.auth-field:focus-within{border-color:rgba(232,25,44,.6);background:rgba(255,255,255,.08);}
+.auth-field-icon{width:46px;height:48px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);flex-shrink:0;}
+.auth-field input{flex:1;background:none;border:none;outline:none;color:#fff;font-size:14px;font-family:'Kanit',sans-serif;padding:14px 0;min-width:0;}
+.auth-field input::placeholder{color:rgba(255,255,255,.25);}
+.auth-eye{background:none;border:none;color:rgba(255,255,255,.3);padding:0 14px;cursor:pointer;flex-shrink:0;transition:opacity .2s;}
+/* SUBMIT */
+.auth-submit-btn{width:100%;background:linear-gradient(135deg,#e8192c,#c0141f);border:none;color:#fff;font-weight:800;font-size:15px;padding:16px;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 24px rgba(232,25,44,.4);margin-top:6px;transition:transform .15s;font-family:'Kanit',sans-serif;}
+.auth-submit-btn:active{transform:scale(.97);}
+/* SWITCH */
+.auth-switch{text-align:center;font-size:13px;color:rgba(255,255,255,.35);margin-top:18px;font-family:'Kanit',sans-serif;}
+.auth-switch b{color:#ff6b6b;cursor:pointer;font-weight:700;}
+.auth-new .ferr{font-size:11px;color:#ff6b6b;font-weight:600;}
+.auth-new .ferr.on{display:block;}
+
+/* CONFIRM PAGE */
+#pCof{background:var(--bg);}
+#pCof .rcard{margin:0;}
+
+</style>
+</head>
+<body>
+<div id="loader">
+  <div class="loader-logo"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
+  <div class="loader-name">Easy Store</div>
+  <svg class="loader-spin" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15"/><path d="M18 3a15 15 0 0115 15"/></svg>
+</div>
+
+<div id="ntfWrap"></div>
+<div class="dov" id="dov" onclick="cD()"></div>
+<div class="drw" id="drw">
+  <button class="dc" onclick="cD()">&#10005;</button>
+  <div class="dh">
+    <div class="db">Easy Store</div>
+    <div class="dtag">Top Up Game Center</div>
+    <div class="duc" id="duc">
+      <div class="dua" id="dua"></div>
+      <div><div style="color:var(--t);font-size:13px;font-weight:700" id="dun"></div><div style="color:var(--t3);font-size:10px" id="due"></div></div>
+    </div>
+  </div>
+  <div class="dmid">
+    <div class="di" onclick="go('home');cD()"><div class="dic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>ໜ້າຫຼັກ</div>
+    <div class="di" onclick="go('games');cD()"><div class="dic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M8 12h2m0 0h2m-2 0v-2m0 2v2"/><circle cx="16" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="14" r="1" fill="currentColor" stroke="none"/></svg></div>ເກມທັງໝົດ</div>
+    <div class="di" onclick="needAuth(()=>{go('history');cD();})"><div class="dic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>ປະຫວັດ</div>
+    <div class="di" onclick="needAuth(()=>{go('profile');cD();})"><div class="dic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>ໂປຣໄຟລ໌</div>
+    <div class="di" onclick="go('help');cD()"><div class="dic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/></svg></div>ຕິດຕໍ່ຫາ</div>
+  </div>
+  <div class="dfoot">
+    <div id="dadmWrap" style="display:none;margin-bottom:8px"><button class="dadm" onclick="cD();openAdm()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admin Panel</button></div>
+    <div id="dloginWrap"><button class="dloginbtn" onclick="cD();go('auth')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>ເຂົ້າສູ່ລະບົບ</button></div>
+  </div>
+</div>
+
+<div class="spov" id="spov"><div class="spbox"><div class="spring"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--G)" stroke-width="2.5"><polyline class="spcheck" points="20 6 9 17 4 12"/></svg></div><div class="spt" id="spt"></div><div class="sps" id="sps"></div><div class="spbar"><div class="spprog"></div></div></div></div>
+
+<div class="pupov" id="pupov" onclick="closePup()">
+  <div style="position:relative;width:85%;max-width:340px;" onclick="event.stopPropagation()">
+    <div id="pupbox"></div>
+    <button class="pupbox-close" onclick="closePup()">&#10005;</button>
+  </div>
+</div>
+
+<!-- CONFIRM PAGE (full page) -->
+<div class="page" id="pCof">
+  <nav class="nav">
+    <button class="backbtn" onclick="cCof()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="nav-title">ສົ່ງຄຳສັ່ງຊື້</div>
+  </nav>
+  <div style="padding:14px">
+    <div style="font-size:13px;color:var(--t3);margin-bottom:14px;text-align:center">ກວດສອບຂໍ້ມູນຄັ້ງສຸດທ້າຍກ່ອນຊຳລະ</div>
+    <div class="rcard" style="margin:0 0 14px 0">
+      <div class="crow"><span class="clbl">ເກມ</span><span class="cval" id="cf-g"></span></div>
+      <div class="crow"><span class="clbl">Package</span><span class="cval" id="cf-p"></span></div>
+      <div class="crow"><span class="clbl">Game ID</span><span class="cval mono" id="cf-u"></span></div>
+      <div class="crow" id="cf-zone-row" style="display:none"><span class="clbl">Zone</span><span class="cval mono" id="cf-z"></span></div>
+      <div class="crow"><span class="clbl">ລາຄາ</span><span class="cval big" id="cf-pr"></span></div>
+      <div class="crow disc" id="cf-disc-row"><span class="clbl">ສ່ວນລົດ</span><span class="cval" style="color:#16a34a" id="cf-disc">-ø ກີບ</span></div>
+      <div class="crow" style="border-bottom:none"><span class="clbl"><b>ຍອດຊຳລະ</b></span><span class="cval big" id="cf-total"></span></div>
+    </div>
+    <button class="btn-cfm" style="border-radius:16px;font-size:17px;padding:18px" onclick="doOrder()">✓ ຢືນຢັນ ຊຳລະ</button>
+    <button class="btn-cxl" style="margin-top:10px;border-radius:16px;font-size:15px;padding:14px" onclick="cCof()">ຍົກເລີກ</button>
+  </div>
+</div>
+
+<!-- EDIT SHEET -->
+<div class="eov" id="eov"><div class="esheet"><div class="sh-handle" style="margin:12px auto 0"></div><div class="etitle" id="etitle"></div><div class="eaf" id="efields"></div><div class="eact"><button class="excl" onclick="cEdit()">ຍົກເລີກ</button><button class="bsv" id="esv">ບັນທຶກ</button></div></div></div>
+
+<!-- HOME -->
+<div class="page on" id="pH">
+  <nav class="nav">
+    <button class="ham" id="hamB" onclick="oD()"><span></span><span></span><span></span></button>
+    <div style="flex:1"></div>
+    <div class="nav-r" id="nR1"></div>
+  </nav>
+  <div class="slw" id="slw"><div class="sltr" id="sltr"></div><div class="sldots" id="sldots"></div><button class="slarr l" onclick="slBy(-1)">&#8249;</button><button class="slarr r" onclick="slBy(1)">&#8250;</button></div>
+  <div class="seh"><div class="seic"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-5 4-5 9a5 5 0 0010 0c0-2-1-4-2-5 0 2-1 3-2 3-1 0-1.5-1-1.5-2 0-1 .5-2.5.5-5z"/><path d="M12 14c0 1.1-.9 2-2 2a2 2 0 01-2-2c0-1.5 2-3.5 2-3.5S12 12.5 12 14z" fill="rgba(255,200,50,.9)"/></svg></div><div><div class="set1">ເກມຍອດນິຍົມ</div><div class="set2">TOP UP FAVORITES</div></div><div class="semore" onclick="go('games')">ເບິ່ງທັງໝົດ &#8250;</div></div>
+  <div class="pgrid" id="pgH"></div>
+  <div class="dv"></div>
+  <div class="srow">
+    <div class="seic" style="width:34px;height:34px;border-radius:10px;background:var(--R);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--sR)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M8 12h2m0 0h2m-2 0v-2m0 2v2"/><circle cx="16" cy="11" r="1.2" fill="#fff" stroke="none"/><circle cx="19" cy="11" r="1.2" fill="#fff" stroke="none"/><circle cx="16" cy="14" r="1.2" fill="#fff" stroke="none"/><circle cx="19" cy="14" r="1.2" fill="#fff" stroke="none"/></svg></div>
+    <div class="srowtit">ເກມທັງໝົດ</div>
+    <div class="sbox"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="ຊອກຫາ..." id="si1" oninput="fg('agH','si1')"></div>
+  </div>
+  <div class="agrid" id="agH"></div>
+  <div class="site-footer">
+    <div class="footer-logo">Easy Store</div>
+    <div class="footer-sub">Top Up Game Center · ບໍລິການ 24/7</div>
+    <div class="footer-links">
+      <span onclick="toast('ເງື່ອນໄຂການໃຊ້ງານ','info')">ເງື່ອນໄຂການໃຊ້ງານ</span>
+      <span class="fdot">·</span>
+      <span onclick="toast('ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ','info')">ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ</span>
+    </div>
+    <div class="footer-copy">© 2025 Easy Store. All rights reserved.</div>
+  </div>
+</div>
+
+<!-- GAMES -->
+<div class="page" id="pG">
+  <nav class="nav"><button class="ham" onclick="oD()"><span></span><span></span><span></span></button><div class="nav-title">ເກມທັງໝົດ</div><div class="nav-r" id="nR2"></div></nav>
+  <div class="srow"><div class="srowtit">ເກມທັງໝົດ</div><div class="sbox"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="ຊອກຫາ..." id="si2" oninput="fg('agG','si2')"></div></div>
+  <div class="agrid" id="agG"></div>
+  <div class="site-footer">
+    <div class="footer-logo">Easy Store</div>
+    <div class="footer-sub">Top Up Game Center · ບໍລິການ 24/7</div>
+    <div class="footer-links">
+      <span onclick="toast('ເງື່ອນໄຂການໃຊ້ງານ','info')">ເງື່ອນໄຂການໃຊ້ງານ</span>
+      <span class="fdot">·</span>
+      <span onclick="toast('ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ','info')">ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ</span>
+    </div>
+    <div class="footer-copy">© 2025 Easy Store. All rights reserved.</div>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="page" id="pD">
+  <nav class="nav"><button class="backbtn" onclick="go('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button><div class="nav-title" id="dnavnm"></div></nav>
+  <div class="ghero" id="ghero">
+    <div class="ghbg" id="ghbg"></div>
+    <div class="ghbl"></div>
+    <div class="ghc">
+      <div class="gic" id="gic"></div>
+      <div class="gnm" id="gnm"></div>
+      <div class="gds" id="gds"></div>
+    </div>
+  </div>
+  <div class="scard">
+    <div class="steprow"><div class="stepn">1</div><div class="stept">ກອກ Game ID</div></div>
+    <div class="flbl">Game ID <span style="color:var(--R)">*</span></div>
+    <input class="fin" id="uIn" type="text" placeholder="ໃສ່ Game ID ..." autocomplete="off" oninput="chkZone()">
+    <div id="zoneWrap" style="display:none;margin-top:10px">
+      <div class="flbl">Zone / Server <span style="color:var(--R)">*</span></div>
+      <input class="fin" id="zoneIn" type="text" placeholder="ໃສ່ Zone/Server ID...">
+    </div>
+  </div>
+  <div class="scard">
+    <div class="steprow"><div class="stepn">2</div><div class="stept">ເລືອກ Package</div></div>
+    <div class="pkgg" id="pkgG"></div>
+  </div>
+  <div class="scard">
+    <div class="steprow"><div class="stepn">3</div><div class="stept">ໂຄ້ດສ່ວນລົດ (ຖ້າມີ)</div></div>
+    <div class="disc-wrap">
+      <input type="text" id="discIn" placeholder="ໃສ່ໂຄ້ດ..." autocomplete="off">
+      <button onclick="applyDisc()">ໃຊ້ໂຄ້ດ</button>
+    </div>
+    <div class="disc-tag" id="discTag" style="display:none"></div>
+    <div class="disc-err" id="discErr" style="display:none"></div>
+  </div>
+  <div class="scard">
+    <div class="steprow"><div class="stepn">4</div><div class="stept">ຊ່ອງທາງການຊຳລະ</div></div>
+    <div class="payo on" id="py1" onclick="sPay('py1')">
+      <div class="payic" style="background:var(--Rl)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--R)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8L4 7h16l-4-4z"/><circle cx="17" cy="14" r="1.5" fill="var(--R)" stroke="none"/></svg></div>
+      <div style="flex:1"><div class="paynm">ເຄຣດິດ (Balance)</div><div class="paysb" id="payBalLbl">ຍອດເງິນຄົງເຫຼືອ: 0 ກີບ</div></div>
+      <div class="payck" style="background:var(--R);border-color:var(--R)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+    </div>
+  </div>
+  <!-- SUMMARY -->
+  <div class="scard" id="summaryCard">
+    <div class="steprow"><div class="stepn">5</div><div class="stept">ສະຫລຸບລາຍການ</div></div>
+    <div class="crow"><span class="clbl">ລາຍການທີ່ເລືອກ</span><span class="cval" id="sumPkg">-</span></div>
+    <div class="crow"><span class="clbl">ລາຄາ</span><span class="cval" id="sumPrice">-</span></div>
+    <div class="crow disc" id="sumDiscRow"><span class="clbl">ສ່ວນລົດ</span><span class="cval" style="color:#16a34a" id="sumDisc">-ø ກີບ</span></div>
+    <div class="crow"><span class="clbl"><b>ຍອດຊຳລະທັງໝົດ</b></span><span class="cval big" id="sumTotal">-</span></div>
+  </div>
+  <button class="obtn" onclick="openCof()">ທຳການຊຳລະ &#8594;</button>
+  <div style="height:20px"></div>
+</div>
+
+<!-- RECEIPT -->
+<div class="page" id="pR">
+  <div class="rhero"><div class="ric2"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><div class="rstat">ສົ່ງ Order ສຳເລັດ!</div><div style="font-size:12px;opacity:.8;margin-top:4px">ກະລຸນາຊຳລະ ແລ້ວສົ່ງ Slip ຢືນຢັນ</div><div class="roid" id="roid"></div></div>
+  <div class="rcard">
+    <div class="rgrw"><div class="rgic" id="rgic"></div><div><div class="rgnm" id="rgnm"></div><div class="rgpk" id="rgpk"></div></div></div>
+    <div class="rrow"><div class="rlbl">Game ID</div><div class="rval mono" id="ruid"></div></div>
+    <div class="rrow"><div class="rlbl">ຊ່ອງທາງຊຳລະ</div><div class="rval" id="rpay"></div></div>
+    <div class="rrow"><div class="rlbl">ລາຄາ</div><div class="rval price" id="rprice"></div></div>
+    <div class="rrow" id="rdiscrow" style="display:none"><div class="rlbl">ສ່ວນລົດ</div><div class="rval" style="color:#16a34a" id="rdisc"></div></div>
+    <div class="rrow"><div class="rlbl">ຍອດຊຳລະ</div><div class="rval price" id="rtotal"></div></div>
+    <div class="rrow"><div class="rlbl">ເວລາ</div><div class="rval" id="rtime"></div></div>
+    <div class="rrow"><div class="rlbl">ສະຖານະ</div><div class="rval pend" id="rstatEl">ລໍຖ້າດຳເນີນການ</div></div>
+  </div>
+  <div class="rnote"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--O)" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg><p>ກ່ອນໂອນ ກະລຸນາ Screenshot Slip ແລ້ວສົ່ງໃຫ້ທີມງານ</p></div>
+  <div class="ract"><button class="rbtn1" onclick="go('home')">ໜ້າຫຼັກ</button><button class="rbtn2" onclick="go('history')">ປະຫວັດ</button></div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- AUTH -->
+<div class="page auth-new" id="pA">
+  <div class="auth-bg-art">
+    <div class="auth-orb auth-orb1"></div>
+    <div class="auth-orb auth-orb2"></div>
+    <div class="auth-orb auth-orb3"></div>
+  </div>
+  <button class="auth-back-btn" onclick="go('home')">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <div class="auth-wrap">
+    <!-- BRAND -->
+    <div class="auth-brand">
+      <div class="auth-logo-text">
+        <span class="auth-logo-e">E</span><span class="auth-logo-asy">ASY</span><span class="auth-logo-space"> </span><span class="auth-logo-store">STORE</span>
+      </div>
+      <div class="auth-logo-line"></div>
+      <div class="auth-tagline">TOP UP · ທຸກເກມ · 24/7</div>
+    </div>
+    <!-- CARD -->
+    <div class="auth-card">
+      <!-- TAB INDICATOR -->
+      <div class="auth-tab-row">
+        <button class="auth-tab on" id="tL" onclick="aTab('login')">ເຂົ້າສູ່ລະບົບ</button>
+        <button class="auth-tab" id="tR" onclick="aTab('reg')">ສ້າງບັນຊີ</button>
+        <div class="auth-tab-slider" id="authSlider"></div>
+      </div>
+      <!-- LOGIN FORM -->
+      <div id="fL">
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <input type="text" id="lE" placeholder="Email ຫຼື Username" autocomplete="username">
+        </div>
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <input type="password" id="lP" placeholder="ລະຫັດຜ່ານ" autocomplete="current-password">
+          <button class="auth-eye" onclick="togglePw('lP',this)" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <button class="auth-submit-btn" onclick="doLogin()">
+          ເຂົ້າສູ່ລະບົບ
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="auth-switch">ຍັງບໍ່ມີບັນຊີ? <b onclick="aTab('reg')">ສ້າງໃໝ່ຟຣີ</b></div>
+      </div>
+      <!-- REGISTER FORM -->
+      <div id="fR" style="display:none">
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <input type="text" id="rN" placeholder="ຊື່ (ຂັ້ນຕ່ຳ 5 ຕົວ)">
+        </div>
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <input type="email" id="rE" placeholder="Email (@gmail.com)" autocomplete="email">
+        </div>
+        <div class="ferr" id="eE" style="margin:-8px 0 8px 0;padding-left:4px"></div>
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <input type="password" id="rP" placeholder="ລະຫັດຜ່ານ (6+ ຕົວ)" autocomplete="new-password">
+          <button class="auth-eye" onclick="togglePw('rP',this)" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="ferr" id="eP" style="margin:-8px 0 8px 0;padding-left:4px"></div>
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <input type="password" id="rP2" placeholder="ຢືນຢັນລະຫັດຜ່ານ" autocomplete="new-password">
+        </div>
+        <div class="ferr" id="eP2" style="margin:-8px 0 8px 0;padding-left:4px"></div>
+        <button class="auth-submit-btn" onclick="doReg()">
+          ສ້າງບັນຊີ
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="auth-switch">ມີບັນຊີຢູ່ແລ້ວ? <b onclick="aTab('login')">ເຂົ້າສູ່ລະບົບ</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WALLET PAGE -->
+<div class="page" id="pWallet">
+  <nav class="nav"><button class="backbtn" onclick="go('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button><div class="nav-title">ເຕີມເຄຣດິດ</div></nav>
+  <div class="wpage" style="background:var(--bg);min-height:calc(100vh - 58px)">
+    <div class="wcard">
+      <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:10px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8L4 7h16l-4-4z"/><circle cx="17" cy="14" r="1" fill="rgba(255,255,255,.7)" stroke="none"/></svg>ເຄຣດິດຄົງເຫຼືອຂອງທ່ານ</div>
+      <div style="display:flex;align-items:baseline;gap:8px"><span class="wamt" id="wPageAmt">0.00</span><span class="wunit">ກີບ</span></div>
+      <div class="wuser" id="wUserBox" style="display:none">
+        <div class="wuav" id="wUAv"></div>
+        <div><div class="wunm" id="wUNm"></div><div class="wuid" id="wUID"></div></div>
+      </div>
+    </div>
+    <div style="background:#fff;border-radius:20px;padding:20px;margin-bottom:12px;box-shadow:var(--s1);border:1px solid var(--br)">
+      <div class="wsec-title" style="margin-bottom:16px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.2" style="vertical-align:middle;margin-right:6px;flex-shrink:0"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8L4 7h16l-4-4z"/><circle cx="17" cy="14" r="1.5" fill="#d97706" stroke="none"/></svg> ເລືອກຊ່ອງທາງການເຕີມເງິນ</div>
+      <div class="wopt on" id="wopt1" onclick="selWopt('wopt1')">
+        <div class="wopt-top">
+          <div class="wopt-ic" style="background:#fff7ed;border-radius:12px;padding:4px"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/TrueMoney_logo.svg/200px-TrueMoney_logo.svg.png" style="width:36px;height:36px;object-fit:contain" onerror="this.parentNode.innerHTML='<svg width=22 height=22 viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;#f97316&quot; stroke-width=&quot;2&quot;><rect x=&quot;2&quot; y=&quot;7&quot; width=&quot;20&quot; height=&quot;14&quot; rx=&quot;2&quot;/><path d=&quot;M16 11h.01&quot;/></svg>'"></div>
+          <div style="flex:1"><div class="wopt-nm">TrueMoney Wallet</div><div class="wopt-sb">ສະແກນ QR Code (ອໍໂຕ)</div></div>
+          <div class="wopt-ck"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </div>
+        <div class="wopt-fee">ຄ່າທຳນຽມ 2.9%</div>
+      </div>
+      <div class="wopt" id="wopt2" onclick="selWopt('wopt2')">
+        <div class="wopt-top">
+          <div class="wopt-ic" style="background:#eff6ff;border-radius:12px;padding:4px"><svg width="36" height="36" viewBox="0 0 60 40" fill="none"><rect width="60" height="40" rx="6" fill="#1a56db"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">PromptPay</text></svg></div>
+          <div style="flex:1"><div class="wopt-nm">ພ້ອມເພ (PromptPay) QR</div><div class="wopt-sb">ສະແກນຈ່າຍທັນທີ (ອໍໂຕ)</div></div>
+          <div class="wopt-ck"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="pP">
+  <nav class="nav"><button class="ham" onclick="oD()"><span></span><span></span><span></span></button><div class="nav-title">ໂປຣໄຟລ໌</div></nav>
+  <div class="ptop">
+    <div class="pav" id="pav"></div>
+    <div class="pnm2" id="pnm2"></div>
+    <div class="pem" id="pem"></div>
+    <div style="font-size:11px;color:var(--t3);margin-top:3px;font-family:monospace;background:var(--bg3);display:inline-block;padding:3px 10px;border-radius:8px;border:1px solid var(--br)" id="puid">ID: -</div>
+    <div class="pbdg" id="pbdg">ສະມາຊິກ</div>
+    <div class="pstats">
+      <div class="pst"><div class="psn" id="poc">0</div><div class="psl">Orders</div></div>
+      <div class="pst"><div class="psn" id="pwal">0</div><div class="psl">ກີບ</div></div>
+      <div class="pst"><div class="psn" id="pjd">-</div><div class="psl">ເດືອນ</div></div>
+    </div>
+  </div>
+  <div class="mcard">
+    <div class="mi" onclick="needAuth(()=>go('history'))"><div class="miic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div style="flex:1"><div class="mit">ປະຫວັດ Order</div><div class="mis" id="pos">0 Orders</div></div><span class="miarr">&#8250;</span></div>
+    <div class="mi" onclick="needAuth(()=>go('pWallet'))"><div class="miic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--R)" stroke-width="2.2" stroke-linecap="round"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8L4 7h16l-4-4z"/><circle cx="17" cy="14" r="1" fill="var(--R)" stroke="none"/></svg></div><div style="flex:1"><div class="mit">Wallet / ເຕີມເຄຣດິດ</div><div class="mis" id="walletBal">0 ກີບ</div></div><span class="miarr">&#8250;</span></div>
+    <div id="admmi" style="display:none" onclick="openAdm()" class="mi"><div class="miic" style="background:var(--Rl)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--R)" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div style="flex:1"><div class="mit" style="color:var(--R)">Admin Panel <span class="admibdg">ADMIN</span></div><div class="mis">ຈັດການລະບົບ</div></div><span class="miarr" style="color:var(--R)">&#8250;</span></div>
+  </div>
+  <button class="logbtn" onclick="doLogout()">ອອກຈາກລະບົບ</button>
+</div>
+
+<!-- HISTORY -->
+<div class="page" id="pHist">
+  <nav class="nav"><button class="ham" onclick="oD()"><span></span><span></span><span></span></button><div class="nav-title">ປະຫວັດການສັ່ງຊື້</div></nav>
+  <div style="padding:14px 0" id="histL"></div>
+</div>
+
+<!-- HELP -->
+<div class="page" id="pHelp">
+  <nav class="nav"><button class="ham" onclick="oD()"><span></span><span></span><span></span></button><div class="nav-title">ຕິດຕໍ່ຫາ</div></nav>
+  <div style="padding:14px 0">
+    <div style="padding:20px 14px 10px;font-size:16px;font-weight:800;color:var(--t)">ຊ່ອງທາງຕິດຕໍ່</div>
+    <div style="padding:0 14px 14px;font-size:13px;color:var(--t3)">ຕິດຕໍ່ທີມງານ 24/7</div>
+    <div class="ct-card" id="ctCard"></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="vAdm">
+  <div class="admtop"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--R)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><h2>Admin Panel</h2><button class="admback" onclick="exitAdm()">&#8592; ອອກ</button></div>
+  <div class="admtabs">
+    <div class="admt on" onclick="aT('dash',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Dashboard</div>
+    <div class="admt" onclick="aT('ban',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="14" rx="2"/><polyline points="3 9 12 13 21 9"/></svg> Banner</div>
+    <div class="admt" onclick="aT('games',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M8 12h2m0 0h2m-2 0v-2m0 2v2"/><circle cx="16" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg> ເກມ+Pkg</div>
+    <div class="admt" onclick="aT('popup',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Popup</div>
+    <div class="admt" onclick="aT('coupon',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg> ໂຄ້ດສ່ວນລົດ</div>
+    <div class="admt" onclick="aT('ord',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg> Orders</div>
+    <div class="admt" onclick="aT('usr',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> Users</div>
+    <div class="admt" onclick="aT('ct',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.63A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg> ຕິດຕໍ່</div>
+  </div>
+  <div class="admbody">
+    <!-- DASH -->
+    <div class="asec on" id="as-dash"><div class="admc"><div class="stg"><div class="stb"><div class="stn" id="sG">0</div><div class="stl">ເກມ</div></div><div class="stb"><div class="stn" id="sB">0</div><div class="stl">Banner</div></div><div class="stb"><div class="stn" id="sP">0</div><div class="stl">Package</div></div><div class="stb"><div class="stn" id="sO">0</div><div class="stl">Orders</div></div><div class="stb"><div class="stn" id="sU">0</div><div class="stl">Users</div></div></div><div style="text-align:center;padding:20px;color:var(--t3)"><div style="font-size:15px;font-weight:800;color:var(--t);margin-bottom:4px">ຍິນດີຕ້ອນຮັບ Admin 👋</div><div style="font-size:12px">Easy Store Management System</div></div></div></div>
+    <!-- BANNER -->
+    <div class="asec" id="as-ban"><div class="admc"><h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:6px"><rect x="3" y="3" width="18" height="14" rx="2"/><polyline points="3 9 12 13 21 9"/></svg>Banner</h3><div class="ibox"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>ໃຊ້ URL https://... ໂດຍກົງ</div><div id="bA"></div><button class="bad" onclick="addBan()">+ ເພີ່ມ Banner</button></div></div>
+    <!-- GAMES+PKG -->
+    <div class="asec" id="as-games"><div class="admc"><h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:6px"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M8 12h2m0 0h2m-2 0v-2m0 2v2"/><circle cx="16" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>ເກມ+Package</h3><div class="ibox"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>ເພີ່ມ URL ພື້ນຫຼັງ (bg_img) ໃຫ້ແຕ່ລະເກມ</div><div id="gA"></div><button class="bad" onclick="addGame()">+ ເພີ່ມເກມໃໝ່</button></div></div>
+    <!-- POPUP -->
+    <div class="asec" id="as-popup"><div class="admc"><h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:6px"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Popup</h3><div id="pupAdm"></div><button class="bad" onclick="addPup()">+ ເພີ່ມ Popup</button></div></div>
+    <!-- COUPON -->
+    <div class="asec" id="as-coupon">
+      <div class="admc">
+        <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:6px"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>ໂຄ້ດສ່ວນລົດ</h3>
+        <div class="ibox"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>ສ້າງໂຄ້ດໄດ້ 2 ປະເພດ: ຫຼຸດເປີເຊັນ (%) ຫຼື ຫຼຸດລາຄາຕາຍ (ກີບ)</div>
+        <div id="couponList"></div>
+        <button class="bad" onclick="addCoupon()">+ ສ້າງໂຄ້ດໃໝ່</button>
+      </div>
+    </div>
+    <!-- ORDERS -->
+    <div class="asec" id="as-ord"><div class="admc"><h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:6px"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>Orders</h3><div id="oA"></div></div></div>
+    <!-- USERS -->
+    <div class="asec" id="as-usr"><div class="admc"><h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:6px"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Users</h3><div id="uA"></div></div></div>
+    <!-- CONTACTS -->
+    <div class="asec" id="as-ct">
+      <div class="admc"><h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:6px"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.63A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>ຊ່ອງທາງຕິດຕໍ່</h3>
+        <div class="af">
+          <label>Facebook URL</label><input type="text" id="ctFB" placeholder="https://facebook.com/..." oninput="saveContacts()">
+          <label>TikTok URL</label><input type="text" id="ctTT" placeholder="https://tiktok.com/@..." oninput="saveContacts()">
+          <label>WhatsApp URL</label><input type="text" id="ctWA" placeholder="https://wa.me/85620..." oninput="saveContacts()">
+        </div>
+        <div style="font-size:12px;color:var(--t3);margin-top:6px">ບັນທຶກ auto ທັນທີ</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="bot" id="botN">
+  <div class="bni on" onclick="go('home');bn(this)">
+    <div class="bic">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+    </div>
+    <div class="bnl">ໜ້າຫຼັກ</div>
+  </div>
+  <div class="bni" onclick="needAuth(()=>{go('pWallet');bn(this);})">
+    <div class="bic">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8L4 7h16l-4-4z"/><circle cx="17" cy="14" r="1.5" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+    <div class="bnl">ເຕີມເຄຣດິດ</div>
+  </div>
+  <div class="bni" onclick="needAuth(()=>{go('history');bn(this);})">
+    <div class="bic">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+    </div>
+    <div class="bnl">ປະຫວັດ</div>
+  </div>
+  <div class="bni" onclick="needAuth(()=>{go('profile');bn(this);})">
+    <div class="bic">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+    </div>
+    <div class="bnl">ໂປຣໄຟ</div>
+  </div>
+  <div class="bni" onclick="go('help');bn(this)">
+    <div class="bic">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
+      </svg>
+    </div>
+    <div class="bnl">ຕິດຕໍ່</div>
+  </div>
+</nav>
+
+<!-- Supabase client removed — all DB calls now go through REST API -->
+<script>
+/* ======================================================
+   API Helper — all calls go to Node.js backend
+   ====================================================== */
+const API_BASE = '/api';
+let _apiToken = null; // JWT stored in memory (not localStorage)
+
+function setToken(t){ _apiToken = t; }
+function clearToken(){ _apiToken = null; }
+
+async function api(method, path, body){
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include', // send HttpOnly cookie if set
+  };
+  if(_apiToken) opts.headers['Authorization'] = 'Bearer ' + _apiToken;
+  if(body) opts.body = JSON.stringify(body);
+  const res = await fetch(API_BASE + path, opts);
+  const json = await res.json().catch(()=>({error:'Invalid response'}));
+  if(!res.ok) throw new Error(json.error || 'API error '+res.status);
+  return json;
+}
+
+const S={g:k=>{try{return JSON.parse(localStorage.getItem('es_'+k));}catch{return null;}},s:(k,v)=>localStorage.setItem('es_'+k,JSON.stringify(v)),d:k=>localStorage.removeItem('es_'+k)};
+// Password hashing is handled server-side (bcrypt). No client-side hash needed.
+
+async function initDB(){
+  try{
+    const d = await api('GET','/store/init');
+    // Games
+    S.s('games', d.games||[]);
+    // Packages — แปลงเป็น {game_id: [...]}
+    const pkMap={};(d.packages||[]).forEach(p=>{if(!pkMap[p.game_id])pkMap[p.game_id]=[];pkMap[p.game_id].push(p);});
+    S.s('pkgs',pkMap);
+    // Banners
+    S.s('bans', d.banners||[]);
+    // Popups
+    S.s('popups', d.popups||[]);
+    // Contacts
+    S.s('contacts', d.contacts||{fb:'',tt:'',wa:''});
+    // Coupons (public list — no secret fields)
+    S.s('coupons', d.coupons||[]);
+    if(!S.g('orders'))S.s('orders',[]);
+  }catch(err){
+    console.error('API init error:',err);
+    toast('ບໍ່ສາມາດເຊື່ອມຕໍ່ Server ໄດ້','err');
+  }
+}
+
+let CU=null;
+const PID={home:'pH',games:'pG',detail:'pD',receipt:'pR',auth:'pA',profile:'pP',history:'pHist',help:'pHelp',pWallet:'pWallet',confirm:'pCof'};
+function loadSess(){CU=S.g('sess');updNav();}
+function updNav(){
+  const r1=document.getElementById('nR1'),r2=document.getElementById('nR2');
+  const dc=document.getElementById('duc'),dn=document.getElementById('dun'),de=document.getElementById('due'),da=document.getElementById('dua');
+  const ami=document.getElementById('admmi');
+  const daw=document.getElementById('dadmWrap'),dlw=document.getElementById('dloginWrap');
+  if(CU){
+    const walletHtml=`<div class="nav-wallet" onclick="needAuth(()=>{go('pWallet');})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8L4 7h16l-4-4z"/><circle cx="17" cy="14" r="1.5" fill="currentColor" stroke="none"/></svg><span>${(CU.wallet||0).toLocaleString()} ກີບ</span></div><div class="av" onclick="go('profile')">${CU.name[0].toUpperCase()}</div>`;
+    if(r1)r1.innerHTML=walletHtml;if(r2)r2.innerHTML=walletHtml;
+    dc.classList.add('on');dn.textContent=CU.name;de.textContent=CU.email;if(da)da.textContent=CU.name[0].toUpperCase();
+    if(ami)ami.style.display=CU.isAdmin?'flex':'none';
+    if(daw)daw.style.display=CU.isAdmin?'block':'none';
+    if(dlw)dlw.style.display='none';
+  }else{
+    const b=`<button class="nav-login" onclick="go('auth')">ເຂົ້າສູ່ລະບົບ</button>`;
+    if(r1)r1.innerHTML=b;if(r2)r2.innerHTML=b;
+    dc.classList.remove('on');if(ami)ami.style.display='none';
+    if(daw)daw.style.display='none';if(dlw)dlw.style.display='block';
+  }
+}
+function needAuth(cb){if(CU){cb();return;}toast('ກະລຸນາເຂົ້າສູ່ລະບົບກ່ອນ','warn');setTimeout(()=>go('auth'),1600);}
+function go(v,dir='enter'){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on','back'));
+  document.getElementById('vAdm').style.display='none';
+  document.getElementById('botN').style.display='flex';
+  const id=PID[v];if(!id)return;
+  const el=document.getElementById(id);el.classList.add('on');if(dir==='back')el.classList.add('back');
+  window.scrollTo(0,0);
+  if(v==='home')rHome();if(v==='games')rGrid('agG');if(v==='history')rHist();
+  if(v==='profile')rProf();if(v==='help')rHelp();if(v==='pWallet')rWallet();
+}
+function bn(el){document.querySelectorAll('.bni').forEach(i=>i.classList.remove('on'));el.classList.add('on');}
+function oD(){document.getElementById('drw').classList.add('on');document.getElementById('dov').classList.add('on');document.getElementById('hamB')&&document.getElementById('hamB').classList.add('x');}
+function cD(){document.getElementById('drw').classList.remove('on');document.getElementById('dov').classList.remove('on');document.getElementById('hamB')&&document.getElementById('hamB').classList.remove('x');}
+
+/* WALLET PAGE */
+function rWallet(){
+  if(!CU)return;
+  document.getElementById('wPageAmt').textContent=(CU.wallet||0).toLocaleString();
+  const ub=document.getElementById('wUserBox');ub.style.display='flex';
+  document.getElementById('wUAv').textContent=CU.name[0].toUpperCase();
+  document.getElementById('wUNm').textContent=CU.name;
+  document.getElementById('wUID').textContent='ID: '+(CU.user_id||CU.id||'-');
+}
+function selWopt(id){document.querySelectorAll('.wopt').forEach(o=>o.classList.remove('on'));document.getElementById(id).classList.add('on');document.querySelectorAll('.wopt .wopt-ck').forEach(c=>c.innerHTML='');document.querySelector('#'+id+' .wopt-ck').innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`;}
+
+/* NOTIFICATIONS */
+const _NTF_DUR=3200;
+const _ICONS={ok:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline class="ntf-ck" points="20 6 9 17 4 12"/></svg>`,err:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,warn:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>`,info:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>`};
+const _TTL={ok:'ສຳເລັດ!',err:'ຜິດພາດ!',warn:'ແຈ້ງເຕືອນ',info:'ແຈ້ງ'};
+function closeNtf(el){el.classList.add('out');clearTimeout(el._nt);setTimeout(()=>el.remove(),280);}
+function toast(msg,type){
+  const t=type||'info';const wrap=document.getElementById('ntfWrap');
+  const all=wrap.querySelectorAll('.ntf');if(all.length>=3)closeNtf(all[0]);
+  const el=document.createElement('div');el.className='ntf '+t;el.style.setProperty('--nd',_NTF_DUR+'ms');
+  el.innerHTML=`<div class="ntf-ico">${_ICONS[t]||_ICONS.info}</div><div class="ntf-body"><div class="ntf-ttl">${_TTL[t]}</div>${msg&&msg!==_TTL[t]?`<div class="ntf-sub">${msg}</div>`:''}</div><div class="ntf-prog-wrap"><div class="ntf-prog"></div></div>`;
+  wrap.appendChild(el);requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('in')));
+  el._nt=setTimeout(()=>closeNtf(el),_NTF_DUR+200);
+}
+function showSuccess(title,sub,cb){
+  const ov=document.getElementById('spov');
+  document.getElementById('spt').textContent=title;document.getElementById('sps').textContent=sub;
+  const box=ov.querySelector('.spbox'),prog=box.querySelector('.spprog');
+  box.style.animation='none';prog.style.animation='none';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{box.style.animation='';prog.style.animation='';}));
+  ov.classList.add('on');clearTimeout(ov._t);ov._t=setTimeout(()=>{ov.classList.remove('on');if(cb)cb();},2300);
+}
+
+/* POPUP */
+function showPopups(){
+  const pups=(S.g('popups')||[]).filter(p=>p.url).sort((a,b)=>a.order-b.order);if(!pups.length)return;
+  let idx=0;function showNext(){if(idx>=pups.length)return;const p=pups[idx++];const box=document.getElementById('pupbox');
+  box.innerHTML=`<div style="width:280px;height:280px;display:flex;align-items:center;justify-content:center;border-radius:16px;background:var(--bg3)"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" style="animation:spin .9s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-opacity=".2"/><path d="M21 12a9 9 0 00-9-9"/></svg></div>`;
+  const img=new Image();img.onload=()=>{box.innerHTML=`<img src="${p.url}" style="width:100%;display:block;border-radius:16px;object-fit:cover;max-height:75vw;">`;if(p.link){box.style.cursor='pointer';box.onclick=()=>{window.open(p.link,'_blank');closePup();}}};img.onerror=()=>{box.innerHTML='';};img.src=p.url;
+  document.getElementById('pupov').classList.add('on');if(pups[idx]){setTimeout(()=>{closePup();setTimeout(showNext,600);},5000);}}
+  setTimeout(showNext,600);
+}
+function closePup(){const ov=document.getElementById('pupov');ov.classList.add('closing');setTimeout(()=>ov.classList.remove('on','closing'),500);}
+
+/* SLIDER */
+let SI=0,slTm=null,isDg=false,sX=0,cX=0;
+function rBanner(){
+  const bans=S.g('bans')||[];const tr=document.getElementById('sltr'),dt=document.getElementById('sldots');if(!tr)return;tr.innerHTML='';dt.innerHTML='';
+  bans.forEach((b,i)=>{const s=document.createElement('div');s.className='slide';s.innerHTML=b.url&&b.url.startsWith('http')?`<img src="${b.url}" alt="" onerror="this.parentNode.innerHTML='<div class=slph style=background:${b.col}><div class=slt>${b.title}</div></div>'">`:`<div class="slph" style="background:${b.col}"><div class="slt">${b.title}</div><div class="sls">${b.sub||''}</div></div>`;tr.appendChild(s);const d=document.createElement('div');d.className='dot'+(i===0?' on':'');d.onclick=()=>gSlide(i);dt.appendChild(d);});
+  SI=0;clearInterval(slTm);slTm=setInterval(()=>gSlide(SI+1),4500);
+  const w=document.getElementById('slw');if(!w)return;const gX=e=>e.touches?e.touches[0].clientX:e.clientX;
+  w.onmousedown=e=>{isDg=true;sX=gX(e);cX=sX;};w.ontouchstart=e=>{isDg=true;sX=gX(e);cX=sX;};
+  w.onmousemove=e=>{if(isDg)cX=gX(e);};w.ontouchmove=e=>{if(isDg)cX=gX(e);};
+  const end=()=>{if(isDg){isDg=false;if(Math.abs(sX-cX)>42)gSlide(SI+(sX-cX>0?1:-1));}};
+  w.onmouseup=end;w.ontouchend=end;
+}
+function gSlide(n){const t=S.g('bans')||[];SI=((n%t.length)+t.length)%t.length;const tr=document.getElementById('sltr');if(tr)tr.style.transform=`translateX(-${SI*100}%)`;document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===SI));}
+function slBy(d){gSlide(SI+d);}
+function TH(g,full){return g.img?`<img src="${g.img}" style="width:100%;height:100%;object-fit:cover">`:`<div style="width:100%;height:100%;background:${g.col};display:flex;align-items:center;justify-content:center;font-size:${full?'36px':'32px'}">${g.e||''}</div>`;}
+function rHome(){rBanner();rPop();rGrid('agH');}
+function rPop(){const gm=S.g('games')||[];const gr=document.getElementById('pgH');if(!gr)return;gr.innerHTML=gm.filter(g=>g.pop).slice(0,6).map(g=>`<div class="pc" onclick="openGame(${g.id})"><div class="pth">${TH(g,true)}<span class="bhot">HOT</span></div><div class="pname">${g.name}</div></div>`).join('');}
+function rGrid(id){const gm=S.g('games')||[];const gr=document.getElementById(id);if(!gr)return;gr.innerHTML=gm.map(g=>`<div class="ac" onclick="openGame(${g.id})">${TH(g,true)}<div class="alab">${g.name}</div></div>`).join('');}
+function fg(gid,iid){const q=document.getElementById(iid).value.toLowerCase();const gm=S.g('games')||[];document.querySelectorAll('#'+gid+' .ac').forEach((c,i)=>{c.style.display=gm[i]&&gm[i].name.toLowerCase().includes(q)?'':'none';});}
+
+/* DISCOUNT */
+let discAmt=0,discLabel='';
+function numParse(s){return parseFloat((s||'0').replace(/,/g,''))||0;}
+function applyDisc(){
+  const code=document.getElementById('discIn').value.trim().toUpperCase();
+  const tag=document.getElementById('discTag'),err=document.getElementById('discErr');
+  tag.style.display='none';err.style.display='none';discAmt=0;discLabel='';
+  if(!code){updateSummary();return;}
+  const coupons=S.g('coupons')||[];const c=coupons.find(x=>x.code===code&&x.active);
+  if(!c){err.textContent='ໂຄ້ດນີ້ບໍ່ຖືກຕ້ອງ ຫຼື ໝົດອາຍຸ';err.style.display='block';updateSummary();return;}
+  // ตรวจ quota
+  const usedBy=c.usedBy||[];
+  if(c.maxUses>0&&usedBy.length>=c.maxUses){err.textContent='ໂຄ້ດນີ້ຖືກໃຊ້ຄົບຈຳນວນແລ້ວ ('+c.maxUses+' ຄົນ)';err.style.display='block';updateSummary();return;}
+  // ตรวจ 1 บัญชี/1 ครั้ง
+  const userEmail=CU?CU.email:'';
+  if(userEmail&&usedBy.includes(userEmail)){err.textContent='ບັນຊີຂອງທ່ານໃຊ້ໂຄ້ດນີ້ແລ້ວ';err.style.display='block';updateSummary();return;}
+  const pkgs=(S.g('pkgs')||{})[cGid]||[];const p=pkgs.find(x=>x.id===cPkg);
+  if(!p){err.textContent='ກະລຸນາເລືອກ Package ກ່ອນ';err.style.display='block';return;}
+  const basePrice=numParse(p.price);
+  if(c.type==='percent'){discAmt=Math.round(basePrice*c.value/100);discLabel=`-${c.value}% (-${discAmt.toLocaleString()} ກີບ)`;}
+  else{discAmt=Math.min(c.value,basePrice);discLabel=`-${discAmt.toLocaleString()} ກີບ`;}
+  tag.textContent='✓ ໃຊ້ໂຄ້ດ: '+code+' '+discLabel;tag.style.display='block';
+  updateSummary();toast('ໃຊ້ໂຄ້ດສຳເລັດ','ok');
+}
+function updateSummary(){
+  const pkgs=(S.g('pkgs')||{})[cGid]||[];const p=pkgs.find(x=>x.id===cPkg);
+  if(!p){['sumPkg','sumPrice','sumTotal'].forEach(id=>{document.getElementById(id).textContent='-';});document.getElementById('sumDiscRow').style.display='none';return;}
+  const base=numParse(p.price);const total=Math.max(0,base-discAmt);
+  document.getElementById('sumPkg').textContent=p.name;
+  document.getElementById('sumPrice').textContent=p.price+' ກີບ';
+  document.getElementById('sumDiscRow').style.display='flex';document.getElementById('sumDisc').textContent=discAmt>0?('-'+discAmt.toLocaleString()+' ກີບ'):'-ø ກີບ';
+  document.getElementById('sumTotal').textContent=total.toLocaleString()+' ກີບ';
+}
+
+let cGid=null,cPkg=null;
+const ZONE_GAMES=[2,4,5,6];
+function chkZone(){const zw=document.getElementById('zoneWrap');if(zw)zw.style.display=ZONE_GAMES.includes(cGid)?'block':'none';}
+function openGame(id){
+  if(!CU){toast('ກະລຸນາເຂົ້າສູ່ລະບົບກ່ອນເຕີມເກມ','warn');setTimeout(()=>go('auth'),1400);return;}
+  cGid=id;cPkg=null;discAmt=0;discLabel='';
+  const gm=S.g('games')||[];const g=gm.find(x=>x.id===id);if(!g)return;
+  document.getElementById('dnavnm').textContent=g.name;
+  document.getElementById('gnm').textContent=g.name;
+  document.getElementById('gds').textContent=g.desc||'';
+  // bg_img if set, else col gradient
+  const bgEl=document.getElementById('ghbg');
+  if(g.bg_img&&g.bg_img.startsWith('http')){bgEl.style.cssText=`background:url(${g.bg_img}) center/cover no-repeat;position:absolute;inset:0;z-index:0;`;}
+  else{bgEl.style.cssText=`background:${g.col};position:absolute;inset:0;z-index:0;`;}
+  document.getElementById('gic').innerHTML=TH(g,true);
+  document.getElementById('uIn').value='';
+  document.getElementById('discIn').value='';
+  document.getElementById('discTag').style.display='none';
+  document.getElementById('discErr').style.display='none';
+  const pkgs=(S.g('pkgs')||{})[id]||[];
+  const gr=document.getElementById('pkgG');
+  gr.innerHTML=pkgs.length?pkgs.map(p=>`<div class="pkc" id="pk-${p.id}" onclick="sPkg(${p.id})"><div class="pkiw">${p.img?`<img src="${p.img}">`:`<div class="pkph"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M2 9h20M6 3l4 6m8-6l-4 6"/></svg></div>`}</div><div class="pknm">${p.name}</div><div class="pkpr">${p.price} ກີບ</div></div>`).join(''):`<div style="color:var(--t3);text-align:center;padding:20px;grid-column:span 2">ຍັງບໍ່ມີ Package</div>`;
+  updateSummary();const pbl2=document.getElementById('payBalLbl');if(pbl2&&CU)pbl2.textContent='ຍອດເງິນຄົງເຫຼືອ: '+(CU.wallet||0).toLocaleString()+' ກີບ';sPay('py1');go('detail');chkZone();
+}
+function sPkg(id){cPkg=id;document.querySelectorAll('.pkc').forEach(c=>c.classList.remove('on'));const el=document.getElementById('pk-'+id);if(el)el.classList.add('on');updateSummary();}
+function sPay(pid){document.querySelectorAll('.payo').forEach(p=>{p.classList.remove('on');p.querySelector('.payck').innerHTML='';});document.getElementById(pid).classList.add('on');document.getElementById(pid).querySelector('.payck').innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`;}
+function openCof(){
+  const uid=document.getElementById('uIn').value.trim();
+  if(!uid){toast('ກະລຸນາກອກ UID','warn');return;}
+  const zw=document.getElementById('zoneWrap');const zone=document.getElementById('zoneIn')&&zw.style.display!=='none'?document.getElementById('zoneIn').value.trim():'';
+  if(zw.style.display!=='none'&&!zone){toast('ກະລຸນາກອກ Zone','warn');return;}
+  if(!cPkg){toast('ກະລຸນາເລືອກ Package','warn');return;}
+  const gm=S.g('games')||[];const g=gm.find(x=>x.id===cGid);
+  const pkgs=(S.g('pkgs')||{})[cGid]||[];const p=pkgs.find(x=>x.id===cPkg);
+  const base=numParse(p.price);const total=Math.max(0,base-discAmt);
+  document.getElementById('cf-g').textContent=g.name;document.getElementById('cf-p').textContent=p.name;
+  document.getElementById('cf-u').textContent=uid;document.getElementById('cf-pr').textContent=p.price+' ກີບ';
+  const zr=document.getElementById('cf-zone-row');if(zone){document.getElementById('cf-z').textContent=zone;zr.style.display='flex';}else{zr.style.display='none';}
+  const dr=document.getElementById('cf-disc-row');dr.style.display='flex';document.getElementById('cf-disc').textContent=discAmt>0?('-'+discAmt.toLocaleString()+' ກີບ'):'-ø ກີບ';
+  document.getElementById('cf-total').textContent=total.toLocaleString()+' ກີບ';
+  const pbl=document.getElementById('payBalLbl');if(pbl&&CU)pbl.textContent='ຍອດເງິນຄົງເຫຼືອ: '+(CU.wallet||0).toLocaleString()+' ກີບ';
+  go('confirm');
+}
+function cCof(){go('detail','back');}
+async function doOrder(){
+  const uid=document.getElementById('uIn').value.trim();
+  const gm=S.g('games')||[];const g=gm.find(x=>x.id===cGid);
+  const pkgs=(S.g('pkgs')||{})[cGid]||[];const p=pkgs.find(x=>x.id===cPkg);
+  if(!g||!p){toast('ເກີດຂໍ້ຜິດພາດ','err');return;}
+  const payNm=document.querySelector('.payo.on .paynm')?.textContent||'';
+  const zone=(document.getElementById('zoneIn')&&document.getElementById('zoneIn').style.display!=='none'?document.getElementById('zoneIn').value.trim():'');
+  const discCode=document.getElementById('discIn').value.trim().toUpperCase();
+  try{
+    const res = await api('POST','/order/create',{
+      game_id:cGid, package_id:cPkg,
+      uid_game:uid, zone, pay:payNm,
+      coupon_code:discCode
+    });
+    // Refresh wallet from server response
+    if(res.new_wallet_balance !== undefined && CU){
+      CU.wallet = res.new_wallet_balance;
+      S.s('sess',CU);
+    }
+    const ord = res.order;
+    const orders=S.g('orders')||[];orders.unshift(ord);S.s('orders',orders);
+    document.getElementById('roid').textContent=ord.id;
+    document.getElementById('rgic').innerHTML=TH(g,true);
+    document.getElementById('rgnm').textContent=g.name;document.getElementById('rgpk').textContent=p.name;
+    document.getElementById('ruid').textContent=uid;document.getElementById('rpay').textContent=payNm;
+    document.getElementById('rprice').textContent=p.price+' ກີບ';
+    const base=numParse(p.price);const total=Math.max(0,base-discAmt);
+    const rdr=document.getElementById('rdiscrow');if(discAmt>0){rdr.style.display='flex';document.getElementById('rdisc').textContent='-'+discAmt.toLocaleString()+' ກີບ';}else{rdr.style.display='none';}
+    document.getElementById('rtotal').textContent=total.toLocaleString()+' ກີບ';
+    document.getElementById('rtime').textContent=ord.time;
+    document.getElementById('rstatEl').textContent='ລໍຖ້າ';document.getElementById('rstatEl').className='rval pend';
+    go('receipt');setTimeout(()=>showSuccess('ສຳເລັດ!','ຄຳສັ່ງຊື້ຖືກສ້າງແລ້ວ'),300);
+  }catch(e){
+    if(e.message.includes('insufficient')||e.message.includes('ຍອດເງິນ')){
+      toast('ຍອດເງິນບໍ່ພໍ! ກະລຸນາເຕີມກ່ອນ','err');
+    } else {
+      toast('ເກີດຂໍ້ຜິດພາດ: '+e.message,'err');
+    }
+  }
+}
+
+/* AUTH */
+function aTab(t){
+  document.getElementById('fL').style.display=t==='login'?'block':'none';
+  document.getElementById('fR').style.display=t==='reg'?'block':'none';
+  document.getElementById('tL').classList.toggle('on',t==='login');
+  document.getElementById('tR').classList.toggle('on',t==='reg');
+  const sl=document.getElementById('authSlider');
+  if(sl)sl.style.transform=t==='login'?'translateX(0)':'translateX(100%)';
+}
+function togglePw(id,btn){const inp=document.getElementById(id);const isText=inp.type==='text';inp.type=isText?'password':'text';btn.style.opacity=isText?'0.45':'1';}
+function fe(id,msg){const e=document.getElementById(id);if(e){e.textContent=msg;e.classList.toggle('on',!!msg);}}
+async function doLogin(){
+  const raw=document.getElementById('lE').value.trim();const pass=document.getElementById('lP').value;
+  if(!raw||!pass){toast('ກະລຸນາຕື່ມ','warn');return;}
+  try{
+    const res = await api('POST','/auth/login',{identifier:raw, password:pass});
+    setToken(res.token);
+    CU={name:res.user.name,email:res.user.email,role:res.user.role||'user',isAdmin:res.user.role==='admin',wallet:res.user.wallet||0,user_id:res.user.user_id||'-'};
+    S.s('sess',CU);updNav();
+    showSuccess('ສຳເລັດ!','ສະບາຍດີ '+CU.name,()=>{go('home');if(CU.isAdmin)setTimeout(openAdm,400);});
+  }catch(e){
+    toast('ຂໍ້ມູນບໍ່ຖືກຕ້ອງ','err');
+  }
+}
+async function doReg(){
+  const name=document.getElementById('rN').value.trim();const email=document.getElementById('rE').value.trim().toLowerCase();
+  const pass=document.getElementById('rP').value;const pass2=document.getElementById('rP2').value;let ok=true;
+  if(name.length<5){toast('ຊື່ 5 ຕົວຂຶ້ນໄປ','warn');ok=false;}
+  if(!email.endsWith('@gmail.com')){fe('eE','@gmail.com ເທົ່ານັ້ນ');ok=false;}
+  if(pass.length<6){fe('eP','6 ຕົວຂຶ້ນໄປ');ok=false;}
+  if(pass!==pass2){fe('eP2','ບໍ່ກົງກັນ');ok=false;}
+  if(!ok)return;
+  try{
+    const res = await api('POST','/auth/register',{name,email,password:pass});
+    setToken(res.token);
+    CU={name:res.user.name,email:res.user.email,role:'user',isAdmin:false,wallet:0,user_id:res.user.user_id||'-'};
+    S.s('sess',CU);updNav();
+    showSuccess('ສຳເລັດ!','ຍິນດີຕ້ອນຮັບ '+name,()=>go('home'));
+  }catch(e){
+    if(e.message.includes('duplicate')||e.message.includes('exist')){fe('eE','ຖືກໃຊ້ແລ້ວ');return;}
+    toast('ລົ້ມເຫຼວ: '+e.message,'err');
+  }
+}
+function doLogout(){if(!confirm('ອອກ?'))return;CU=null;S.d('sess');updNav();go('home','back');toast('ອອກຈາກລະບົບແລ້ວ','ok');}
+
+function rProf(){
+  if(!CU)return;
+  document.getElementById('pav').textContent=CU.name[0].toUpperCase();
+  document.getElementById('pnm2').textContent=CU.name;document.getElementById('pem').textContent=CU.email;
+  document.getElementById('puid').textContent='ID: '+(CU.user_id||'-');
+  document.getElementById('pbdg').textContent=CU.isAdmin?'Admin':'User';
+  document.getElementById('pwal').textContent=(CU.wallet||0).toLocaleString();
+  document.getElementById('walletBal').textContent=(CU.wallet||0).toLocaleString()+' ກີບ';const pbl=document.getElementById('payBalLbl');if(pbl)pbl.textContent='ຍອດເງິນຄົງເຫຼືອ: '+(CU.wallet||0).toLocaleString()+' ກີບ';
+  const ords=(S.g('orders')||[]).filter(o=>o.userId===CU.email);
+  document.getElementById('poc').textContent=ords.length;document.getElementById('pos').textContent=ords.length+' Orders';
+  const users=S.g('users')||[];const u=users.find(x=>x.email===CU.email);
+  if(u){const m=Math.floor((Date.now()-new Date(u.joined))/(1000*60*60*24*30));document.getElementById('pjd').textContent=m||'<1';}
+}
+function rHist(){
+  const gm=S.g('games')||[];let ords=S.g('orders')||[];
+  if(CU&&!CU.isAdmin)ords=ords.filter(o=>o.userId===CU.email);
+  const list=document.getElementById('histL');
+  if(!ords.length){list.innerHTML='<div class="empty"><p>ຍັງບໍ່ມີ Order</p></div>';return;}
+  list.innerHTML=ords.map(o=>{const g=gm.find(x=>x.name===o.game);const st=o.status==='done'?'<span class="st stdone">ສຳເລັດ</span>':o.status==='failed'?'<span class="st stfail">ລົ້ມ</span>':'<span class="st stpend">ລໍຖ້າ</span>';
+  return `<div class="hitem" onclick="viewR('${o.id}')"><div class="hic">${g&&g.img?`<img src="${g.img}">`:`<div class="hph" style="background:${g?g.col:'#333'};font-size:22px">${g?g.e:''}</div>`}</div><div style="flex:1;min-width:0"><div class="hnm">${o.game}</div><div class="hpk">${o.pkg}</div><div class="htm2">${o.time}</div><div class="hid">${o.id}</div></div><div class="hr2"><div class="hpr">${o.total||o.price} ກີບ</div>${st}</div></div>`;}).join('');
+}
+function viewR(oid){
+  const ords=S.g('orders')||[];const o=ords.find(x=>x.id===oid);if(!o)return;
+  const gm=S.g('games')||[];const g=gm.find(x=>x.name===o.game);
+  document.getElementById('roid').textContent=o.id;document.getElementById('rgic').innerHTML=g?TH(g,true):'';
+  document.getElementById('rgnm').textContent=o.game;document.getElementById('rgpk').textContent=o.pkg;
+  document.getElementById('ruid').textContent=o.uid;document.getElementById('rpay').textContent=o.pay;
+  document.getElementById('rprice').textContent=o.price+' ກີບ';
+  const rdr=document.getElementById('rdiscrow');const da=o.discount||0;
+  if(da>0){rdr.style.display='flex';document.getElementById('rdisc').textContent='-'+parseInt(da).toLocaleString()+' ກີບ';}else{rdr.style.display='none';}
+  document.getElementById('rtotal').textContent=(o.total||o.price)+' ກີບ';
+  document.getElementById('rtime').textContent=o.time;
+  const el=document.getElementById('rstatEl');el.textContent=o.status==='done'?'ສຳເລັດ':o.status==='failed'?'ລົ້ມ':'ລໍຖ້າ';el.className='rval '+(o.status==='done'?'done':'pend');go('receipt');
+}
+function rHelp(){
+  const ct=S.g('contacts')||{};const card=document.getElementById('ctCard');const items=[];
+  if(ct.fb)items.push({cls:'fb',ico:'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>',name:'Facebook',url:ct.fb});
+  if(ct.tt)items.push({cls:'tt',ico:'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.27 8.27 0 004.83 1.55V6.79a4.85 4.85 0 01-1.06-.1z"/></svg>',name:'TikTok',url:ct.tt});
+  if(ct.wa)items.push({cls:'wa',ico:'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.99 2C6.472 2 2 6.473 2 12c0 1.99.588 3.84 1.596 5.4L2 22l4.74-1.577A9.966 9.966 0 0011.99 22c5.519 0 9.99-4.473 9.99-9.99C21.98 6.473 17.51 2 11.99 2z"/></svg>',name:'WhatsApp',url:ct.wa});
+  if(!items.length){card.innerHTML='<div class="help-empty"><p>ຍັງບໍ່ມີຊ່ອງທາງຕິດຕໍ່</p><p class="sub">Admin ກະລຸນາໃສ່ຂໍ້ມູນໃນ Admin Panel</p></div>';return;}
+  const subs={fb:'ຕິດຕໍ່ຜ່ານ Facebook',tt:'ຕິດຕໍ່ຜ່ານ TikTok',wa:'ສົ່ງຂໍ້ຄວາມ WhatsApp'};
+  card.innerHTML=items.map(it=>`<a class="ct-item" href="${it.url}" target="_blank"><div class="ct-ico ${it.cls}">${it.ico}</div><div style="flex:1"><div class="ct-name">${it.name}</div><div class="ct-sub">${subs[it.cls]||''}</div></div><span class="ct-arr">&#8250;</span></a>`).join('');
+}
+
+/* ADMIN */
+async function openAdm(){
+  if(!CU||!CU.isAdmin){toast('Admin ເທົ່ານັ້ນ','err');return;}
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on','back'));
+  document.getElementById('botN').style.display='none';document.getElementById('vAdm').style.display='block';
+  await Promise.all([loadAllOrders(),loadAllUsers()]);rAdmD();
+}
+function exitAdm(){document.getElementById('vAdm').style.display='none';go('home','back');document.getElementById('botN').style.display='flex';}
+function aT(n,el){document.querySelectorAll('.admt').forEach(t=>t.classList.remove('on'));el.classList.add('on');document.querySelectorAll('.asec').forEach(s=>s.classList.remove('on'));document.getElementById('as-'+n).classList.add('on');if(n==='ban')rBanA();if(n==='games')rGamA();if(n==='popup')rPupA();if(n==='coupon')rCouponA();if(n==='ord')rOrdA();if(n==='usr')rUsrA();if(n==='ct')rCtA();}
+function rAdmD(){const gm=S.g('games')||[],bns=S.g('bans')||[],ords=S.g('orders')||[],users=S.g('users')||[],pk=S.g('pkgs')||{};let tp=0;Object.values(pk).forEach(a=>tp+=a.length);['sG','sB','sP','sO','sU'].forEach((id,i)=>{const v=[gm.length,bns.length,tp,ords.length,users.length];document.getElementById(id).textContent=v[i];});}
+/* BANNER */
+function rBanA(){const bans=S.g('bans')||[];document.getElementById('bA').innerHTML=bans.map((b,i)=>`<div class="irow"><div class="ric">${b.url?`<img src="${b.url}">`:`<div class="rph" style="background:${b.col}">${b.title[0]}</div>`}</div><div class="rinf"><div class="rnm">${b.title}</div><div class="rsb" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px">${b.url||'ບໍ່ມີຮູບ'}</div></div><div class="rack"><button class="bed" onclick="editBan(${i})">ແກ້ໄຂ</button><button class="bdl" onclick="delBan(${i})">ລຶບ</button></div></div>`).join('');}
+function editBan(i){const bans=S.g('bans')||[];const b=bans[i];openEdit('Banner',`<label>ຫົວຂໍ້</label><input type="text" id="f-t" value="${b.title}"><label>URL ຮູບ</label><input type="text" id="f-u" value="${b.url||''}"><label>ຄຳອະທິບາຍ</label><input type="text" id="f-s" value="${b.sub||''}">`,async()=>{bans[i]={...b,title:V('f-t')||b.title,url:V('f-u'),sub:V('f-s')};S.s('bans',bans);rBanA();rBanner();try{await api('PUT','/admin/banner/'+b.id,bans[i]);}catch(e){}toast('ອັບເດດ','ok');});}
+function addBan(){const bans=S.g('bans')||[];openEdit('ເພີ່ມ Banner',`<label>ຫົວຂໍ້</label><input type="text" id="f-t" placeholder="ຊື່"><label>URL ຮູບ</label><input type="text" id="f-u" placeholder="https://..."><label>ຄຳອະທິບາຍ</label><input type="text" id="f-s" placeholder="ຄຳອະທິບາຍ">`,async()=>{const nm=V('f-t');if(!nm){toast('ໃສ່ຊື່','warn');return;}const nb={id:Date.now(),title:nm,url:V('f-u'),sub:V('f-s'),col:'linear-gradient(135deg,#e8192c,#ff6b35)'};bans.push(nb);S.s('bans',bans);rBanA();rBanner();try{await api('POST','/admin/banner',nb);}catch(e){}toast('ເພີ່ມ','ok');});}
+async function delBan(i){if((S.g('bans')||[]).length<=1){toast('ຕ້ອງ 1','warn');return;}const bans=S.g('bans')||[];const b=bans[i];bans.splice(i,1);S.s('bans',bans);rBanA();rBanner();try{await api('DELETE','/admin/banner/'+b.id);}catch(e){console.warn(e);}toast('ລຶບ Banner','ok');}
+/* GAMES+PKG */
+function rGamA(){
+  const gm=S.g('games')||[];const pk=S.g('pkgs')||{};const el=document.getElementById('gA');
+  el.innerHTML=gm.map((g,gi)=>{const pkgs=pk[g.id]||[];
+    return `<div class="gitem"><div class="gitem-head" onclick="toggleGitem(${gi})"><div class="ric">${g.img?`<img src="${g.img}">`:`<div class="rph" style="background:${g.col}">${g.e}</div>`}</div><div class="rinf"><div class="rnm">${g.name}</div><div class="rsb">${g.pop?'⭐ ':''} ${pkgs.length} Pkgs${g.bg_img?' · 🖼BG':''}</div></div><div class="rack"><button class="bed" onclick="event.stopPropagation();editGame(${gi})">ແກ້ໄຂ</button><button class="bdl" onclick="event.stopPropagation();delGame(${gi})">ລຶບ</button></div></div><div class="gitem-body" id="gb-${gi}"><div class="pkg-sub"><div class="pkg-sub-title">Package (${pkgs.length})</div>${pkgs.map((p,pi)=>`<div class="pkg-row"><div class="${p.img?'':'prph'}">${p.img?`<img src="${p.img}" style="width:32px;height:32px;border-radius:8px;object-fit:cover">`:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M2 9h20"/></svg>`}</div><div class="pri"><div class="prn" style="font-size:12px;font-weight:700;color:var(--t)">${p.name}</div><div class="prp">${p.price} ກີບ</div></div><div class="pract" style="display:flex;gap:4px"><button class="bed" style="font-size:11px;padding:4px 8px" onclick="editPkg(${g.id},${pi})">ແກ້</button><button class="bdl" style="font-size:11px;padding:4px 8px" onclick="delPkg(${g.id},${pi})">ລຶບ</button></div></div>`).join('')}<button class="bad" style="margin-top:6px;font-size:12px;padding:8px 14px" onclick="addPkg(${g.id})">+ Package</button></div></div></div>`;
+  }).join('');
+}
+function toggleGitem(i){const el=document.getElementById('gb-'+i);if(el)el.classList.toggle('on');}
+function editGame(i){
+  const gm=S.g('games')||[];const g=gm[i];
+  openEdit('ແກ້ໄຂ: '+g.name,`<label>ຊື່ເກມ</label><input type="text" id="f-n" value="${g.name}"><label>ຄຳອະທິບາຍ</label><input type="text" id="f-d" value="${g.desc||''}"><label>URL ໂລໂກ</label><input type="text" id="f-i" value="${g.img||''}" placeholder="https://..."><label>URL ພື້ນຫຼັງ (bg_img)</label><input type="text" id="f-bg" value="${g.bg_img||''}" placeholder="https://... (ຮູບພາບດ້ານຫຼັງ)"><label>Emoji</label><input type="text" id="f-e" value="${g.e||''}"><div class="swrow"><label class="sw"><input type="checkbox" id="f-p" ${g.pop?'checked':''}><span class="swsl"></span></label><span style="font-size:13px;font-weight:600">ຍອດນິຍົມ</span></div>`,async()=>{gm[i]={...g,name:V('f-n')||g.name,desc:V('f-d'),img:V('f-i'),bg_img:V('f-bg'),e:V('f-e')||g.e,pop:document.getElementById('f-p').checked};S.s('games',gm);rGamA();rHome();try{await api('PUT','/admin/game/'+g.id,gm[i]);}catch(e){}toast('ອັບເດດ','ok');});}
+function addGame(){const cols=['linear-gradient(135deg,#e8192c,#ff6b35)','linear-gradient(135deg,#1a6fc4,#00c4ff)','linear-gradient(135deg,#8e44ad,#3498db)','linear-gradient(135deg,#166534,#16a34a)'];openEdit('ເພີ່ມເກມ',`<label>ຊື່ເກມ</label><input type="text" id="f-n" placeholder="ຊື່ເກມ"><label>ຄຳອະທິບາຍ</label><input type="text" id="f-d" placeholder="ຄຳອະທິບາຍ"><label>URL ໂລໂກ</label><input type="text" id="f-i" placeholder="https://..."><label>URL ພື້ນຫຼັງ (bg_img)</label><input type="text" id="f-bg" placeholder="https://..."><label>Emoji</label><input type="text" id="f-e" placeholder="FF"><div class="swrow"><label class="sw"><input type="checkbox" id="f-p"><span class="swsl"></span></label><span style="font-size:13px;font-weight:600">ຍອດນິຍົມ</span></div>`,async()=>{const nm=V('f-n');if(!nm){toast('ໃສ່ຊື່','warn');return;}const gm=S.g('games')||[];const id=Date.now();const ng={id,name:nm,desc:V('f-d'),img:V('f-i'),bg_img:V('f-bg'),e:V('f-e')||'',col:cols[gm.length%cols.length],pop:document.getElementById('f-p').checked};gm.push(ng);S.s('games',gm);const pk=S.g('pkgs')||{};pk[id]=[];S.s('pkgs',pk);rGamA();rHome();try{await api('POST','/admin/game',ng);}catch(e){}toast('ເພີ່ມ','ok');});}
+async function delGame(i){if(!confirm('ລຶບ?'))return;const gm=S.g('games')||[];const g=gm[i];gm.splice(i,1);S.s('games',gm);rGamA();rHome();try{await api('DELETE','/admin/game/'+g.id);}catch(e){console.warn(e);}toast('ລຶບເກມ','ok');}
+function addPkg(gid){openEdit('ເພີ່ມ Package',`<label>ຊື່</label><input type="text" id="f-n" placeholder="100 Diamond"><label>ລາຄາ (ກີບ)</label><input type="text" id="f-p2" placeholder="20,000"><label>URL ຮູບ</label><input type="text" id="f-i" placeholder="https://...">`,async()=>{const nm=V('f-n');if(!nm){toast('ໃສ່ຊື່','warn');return;}const pk=S.g('pkgs')||{};if(!pk[gid])pk[gid]=[];const np={id:Date.now(),name:nm,price:V('f-p2'),img:V('f-i'),game_id:gid};pk[gid].push(np);S.s('pkgs',pk);rGamA();try{await api('POST','/admin/package',np);}catch(e){}toast('ເພີ່ມ Package','ok');});}
+function editPkg(gid,i){const pk=S.g('pkgs')||{};const p=(pk[gid]||[])[i];openEdit('ແກ້ Package',`<label>ຊື່</label><input type="text" id="f-n" value="${p.name}"><label>ລາຄາ</label><input type="text" id="f-p2" value="${p.price}"><label>URL ຮູບ</label><input type="text" id="f-i" value="${p.img||''}">`,async()=>{pk[gid][i]={...p,name:V('f-n')||p.name,price:V('f-p2')||p.price,img:V('f-i')};S.s('pkgs',pk);rGamA();try{await api('PUT','/admin/package/'+p.id,pk[gid][i]);}catch(e){}toast('ອັບເດດ','ok');});}
+async function delPkg(gid,i){const pk=S.g('pkgs')||{};const p=pk[gid][i];pk[gid].splice(i,1);S.s('pkgs',pk);rGamA();try{await api('DELETE','/admin/package/'+p.id);}catch(e){console.warn(e);}toast('ລຶບ Package','ok');}
+/* POPUP ADMIN */
+function rPupA(){const pups=(S.g('popups')||[]).sort((a,b)=>a.order-b.order);const el=document.getElementById('pupAdm');el.innerHTML=pups.length?pups.map((p,i)=>`<div class="irow"><div class="ric">${p.url?`<img src="${p.url}" onerror="this.style.display='none'">`:`<div class="rph"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></div>`}</div><div class="rinf"><div class="rnm">Popup #${p.order}</div><div class="rsb" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px">${p.url||'ບໍ່ມີຮູບ'}</div></div><div class="rack"><button class="bed" onclick="editPup(${i})">ແກ້ໄຂ</button><button class="bdl" onclick="delPup(${i})">ລຶບ</button></div></div>`).join(''):'<div class="empty" style="padding:20px"><p>ຍັງບໍ່ມີ Popup</p></div>';}
+function addPup(){openEdit('ເພີ່ມ Popup',`<label>URL ຮູບ Popup *</label><input type="text" id="f-u" placeholder="https://..."><label>ລິງຄ໌ (optional)</label><input type="text" id="f-l" placeholder="https://..."><label>ລຳດັບ (1=ທຳອິດ)</label><input type="number" id="f-o" value="1" min="1">`,async()=>{const url=V('f-u');if(!url){toast('ໃສ່ URL','warn');return;}const pups=S.g('popups')||[];const np={id:Date.now(),url,link:V('f-l'),order:parseInt(document.getElementById('f-o').value)||1};pups.push(np);S.s('popups',pups);rPupA();try{await api('POST','/admin/popup',np);}catch(e){console.warn('popup insert err',e);}toast('ເພີ່ມ Popup','ok');});}
+function editPup(i){const pups=S.g('popups')||[];const p=pups[i];openEdit('ແກ້ Popup',`<label>URL ຮູບ</label><input type="text" id="f-u" value="${p.url||''}"><label>ລິງຄ໌</label><input type="text" id="f-l" value="${p.link||''}"><label>ລຳດັບ</label><input type="number" id="f-o" value="${p.order}" min="1">`,async()=>{pups[i]={...p,url:V('f-u'),link:V('f-l'),order:parseInt(document.getElementById('f-o').value)||1};S.s('popups',pups);rPupA();try{await api('PUT','/admin/popup/'+p.id,pups[i]);}catch(e){console.warn('popup upsert err',e);}toast('ອັບເດດ','ok');});}
+async function delPup(i){if(!confirm('ລຶບ?'))return;const pups=S.g('popups')||[];const p=pups[i];pups.splice(i,1);S.s('popups',pups);rPupA();try{await api('DELETE','/admin/popup/'+p.id);}catch(e){console.warn('popup delete err',e);}toast('ລຶບ Popup','ok');}
+
+/* COUPON ADMIN */
+function rCouponA(){
+  const coupons=S.g('coupons')||[];const el=document.getElementById('couponList');
+  el.innerHTML=coupons.length?coupons.map((c,i)=>{const used=(c.usedBy||[]).length;const max=c.maxUses>0?c.maxUses:'∞';const qc=c.maxUses>0&&used>=c.maxUses?'color:var(--R)':'color:var(--t3)';return `<div class="irow"><div class="rinf"><div class="rnm" style="font-family:monospace">${c.code}</div><div class="rsb">${c.type==='percent'?`ຫຼຸດ ${c.value}%`:`ຫຼຸດ ${parseInt(c.value).toLocaleString()} ກີບ`} · ${c.active?'<span style="color:#16a34a">ໃຊ້ໄດ້</span>':'<span style="color:var(--R)">ປິດ</span>'}</div><div class="rsb" style="${qc}">ໃຊ້ແລ້ວ ${used}/${max} ຄົນ · 1 ບັນຊີ/1 ຄັ້ງ</div></div><div class="rack"><button class="bed" onclick="toggleCoupon(${i})">${c.active?'ປິດ':'ເປີດ'}</button><button class="bdl" onclick="delCoupon(${i})">ລຶບ</button></div></div>`;}).join(''):'<div class="empty" style="padding:16px"><p>ຍັງບໍ່ມີໂຄ້ດ</p></div>';
+}
+function addCoupon(){openEdit('ສ້າງໂຄ້ດສ່ວນລົດ',`<label>ໂຄ້ດ (ຕົວໃຫຍ່)</label><input type="text" id="f-code" placeholder="SAVE20" style="text-transform:uppercase"><label>ປະເພດ</label><select id="f-type"><option value="percent">ຫຼຸດເປີເຊັນ (%)</option><option value="fixed">ຫຼຸດລາຄາ (ກີບ)</option></select><label>ຄ່າ (ໃສ່ຕົວເລກ)</label><input type="number" id="f-val" placeholder="10 = 10% ຫຼື 5000 = 5,000 ກີບ" min="1"><label>ຈຳນວນສິດໃຊ້ (0 = ບໍ່ຈຳກັດ)</label><input type="number" id="f-max" placeholder="0 = ບໍ່ຈຳກັດ" min="0" value="0">`,async()=>{const code=V('f-code').toUpperCase();if(!code){toast('ໃສ່ໂຄ້ດ','warn');return;}const val=parseFloat(document.getElementById('f-val').value)||0;if(val<=0){toast('ໃສ່ຄ່າ','warn');return;}const coupons=S.g('coupons')||[];if(coupons.find(c=>c.code===code)){toast('ໂຄ້ດນີ້ມີຢູ່ແລ້ວ','warn');return;}const maxUses=parseInt(document.getElementById('f-max').value)||0;const nc={id:Date.now(),code,type:document.getElementById('f-type').value,value:val,active:true,maxUses,usedBy:[]};coupons.push(nc);S.s('coupons',coupons);rCouponA();try{await api('POST','/admin/coupon',nc);}catch(e){}toast('ສ້າງໂຄ້ດ','ok');});}
+async function toggleCoupon(i){const c=S.g('coupons')||[];c[i].active=!c[i].active;S.s('coupons',c);rCouponA();try{await api('PUT','/admin/coupon/'+c[i].id,{active:c[i].active});}catch(e){}toast(c[i].active?'ເປີດໂຄ້ດ':'ປິດໂຄ້ດ','ok');}
+async function delCoupon(i){if(!confirm('ລຶບ?'))return;const c=S.g('coupons')||[];const cp=c[i];c.splice(i,1);S.s('coupons',c);rCouponA();try{await api('DELETE','/admin/coupon/'+cp.id);}catch(e){console.warn('coupon delete err',e);}toast('ລຶບໂຄ້ດ','ok');}
+
+/* ORDERS */
+function rOrdA(){const ords=S.g('orders')||[];const list=document.getElementById('oA');if(!ords.length){list.innerHTML='<div class="empty"><p>ຍັງບໍ່ມີ</p></div>';return;}list.innerHTML=ords.map((o,i)=>`<div class="irow" style="flex-wrap:wrap;gap:8px"><div class="rinf" style="width:100%"><div class="rnm">${o.id}</div><div class="rsb">${o.game} · ${o.pkg} · ${o.price}${o.discount&&o.discount>0?' → '+o.total:''} ກີບ</div><div class="rsb">UID: ${o.uid} · ${o.userId} · ${o.time}</div></div><div style="display:flex;gap:6px"><select onchange="upOS(${i},this.value)" style="border:1.5px solid var(--br);border-radius:8px;padding:6px 10px;font-size:12px;background:var(--bg3);color:var(--t)"><option value="pending" ${o.status==='pending'?'selected':''}>ລໍຖ້າ</option><option value="done" ${o.status==='done'?'selected':''}>ສຳເລັດ</option><option value="failed" ${o.status==='failed'?'selected':''}>ລົ້ມ</option></select><button class="bdl" onclick="delOrd(${i})">ລຶບ</button></div></div>`).join('');}
+async function upOS(i,v){const o=S.g('orders')||[];o[i].status=v;S.s('orders',o);try{await api('PUT','/admin/order/status',{id:o[i].id,status:v});}catch(e){}rOrdA();toast('ອັບເດດ','ok');}
+async function delOrd(i){if(!confirm('ລຶບ?'))return;const o=S.g('orders')||[];const ord=o[i];o.splice(i,1);S.s('orders',o);rOrdA();try{await api('DELETE','/admin/order/'+ord.id);}catch(e){console.warn(e);}toast('ລຶບ Order','ok');}
+/* USERS */
+function rUsrA(){const users=S.g('users')||[];const ords=S.g('orders')||[];const list=document.getElementById('uA');if(!users.length){list.innerHTML='<div class="empty"><p>ຍັງບໍ່ມີ</p></div>';return;}list.innerHTML=users.map((u,i)=>{const cnt=ords.filter(o=>o.userId===u.email).length;const rl=u.role==='admin'?`<span class="role-admin">Admin</span>`:`<span class="role-user">User</span>`;return `<div class="adurow"><div class="aduav">${u.name[0].toUpperCase()}</div><div class="rinf"><div class="rnm">${u.name} ${rl}</div><div class="rsb">${u.email} · ${cnt} Orders · Wallet: ${u.wallet||0} ກີບ</div></div><div style="display:flex;gap:4px"><button class="bed" style="font-size:11px;padding:5px 9px" onclick="editUser(${i})">ແກ້</button></div></div>`;}).join('');}
+function editUser(i){const users=S.g('users')||[];const u=users[i];openEdit('ຈັດການ: '+u.name,`<label>Wallet (ກີບ)</label><input type="number" id="f-w" value="${u.wallet||0}" min="0"><label>Role</label><select id="f-r"><option value="user" ${(u.role||'user')==='user'?'selected':''}>User</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select>`,async()=>{users[i]={...u,wallet:parseInt(document.getElementById('f-w').value)||0,role:document.getElementById('f-r').value};S.s('users',users);rUsrA();try{await api('PUT','/admin/user/'+u.email,{wallet:users[i].wallet,role:users[i].role});}catch(e){}toast('ອັບເດດ','ok');});}
+/* CONTACTS */
+function rCtA(){const ct=S.g('contacts')||{};document.getElementById('ctFB').value=ct.fb||'';document.getElementById('ctTT').value=ct.tt||'';document.getElementById('ctWA').value=ct.wa||'';}
+async function saveContacts(){const ct={fb:document.getElementById('ctFB').value,tt:document.getElementById('ctTT').value,wa:document.getElementById('ctWA').value};S.s('contacts',ct);try{await api('PUT','/admin/settings/contacts',ct);}catch(e){}toast('ບັນທຶກແລ້ວ','ok');}
+/* EDIT SHEET */
+let eSvFn=null;
+function V(id){return(document.getElementById(id)&&document.getElementById(id).value||'').trim();}
+function openEdit(title,html,fn){document.getElementById('etitle').textContent=title;document.getElementById('efields').innerHTML=html;eSvFn=fn;document.getElementById('esv').onclick=()=>{fn&&fn();cEdit();};document.getElementById('eov').classList.add('on');}
+function cEdit(){document.getElementById('eov').classList.remove('on');}
+async function loadAllOrders(){try{const d=await api('GET','/admin/orders');S.s('orders',d||[]);}catch(e){console.warn('orders load err',e);}}
+async function loadAllUsers(){try{const d=await api('GET','/admin/users');S.s('users',d||[]);}catch(e){console.warn('users load err',e);}}
+
+
+window.onload=async()=>{
+  await initDB();loadSess();go('home');showPopups();
+  setTimeout(()=>{const l=document.getElementById('loader');if(l)l.classList.add('hide');},600);
+};
+</script>
+</body>
+</html>
