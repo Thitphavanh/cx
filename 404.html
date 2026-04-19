@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Easy Store</title>
+<script>
+  // GitHub Pages 404 redirect trick
+  // Save the path and redirect to index.html
+  const path = window.location.pathname;
+  sessionStorage.setItem('es_redirect', path);
+  window.location.replace('/');
+</script>
+</head>
+<body></body>
+</html>
