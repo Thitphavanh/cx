@@ -489,9 +489,92 @@ input,button,select{font-family:inherit;}img{display:block;}::-webkit-scrollbar{
 #pCof{background:var(--bg);}
 #pCof .rcard{margin:0;}
 
+
+/* ══ DESKTOP LAYOUT ══ */
+#dsk-sidebar{display:none;}
+#dsk-main{display:contents;}
+@media(min-width:900px){
+  :root{--bot:0px;}
+  .bot{display:none!important;}
+  .ham,.backbtn{display:none!important;}
+  .drw,.dov{display:none!important;}
+  body{display:flex!important;}
+  #dsk-sidebar{display:flex!important;flex-direction:column;width:240px;min-width:240px;height:100vh;position:sticky;top:0;background:var(--bg2);border-right:1px solid var(--br);box-shadow:2px 0 16px rgba(0,0,0,.06);z-index:100;overflow-y:auto;}
+  #dsk-sidebar .sb-brand{padding:20px 18px 14px;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:10px;}
+  #dsk-sidebar .sb-brand img{height:38px;object-fit:contain;}
+  #dsk-sidebar .sb-brand span{font-size:15px;font-weight:900;color:var(--t);}
+  #dsk-sidebar .sb-nav{flex:1;padding:12px 10px;}
+  #dsk-sidebar .sb-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;transition:background .15s;font-size:14px;font-weight:600;color:var(--t2);margin-bottom:2px;}
+  #dsk-sidebar .sb-item:hover{background:var(--bg3);}
+  #dsk-sidebar .sb-item.on{background:var(--Rl);color:var(--R);}
+  #dsk-sidebar .sb-item.on svg{stroke:var(--R);}
+  #dsk-sidebar .sb-item svg{width:18px;height:18px;stroke:var(--t3);flex-shrink:0;transition:stroke .15s;}
+  #dsk-sidebar .sb-foot{padding:14px 10px;border-top:1px solid var(--br);}
+  #dsk-sidebar .sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--bg3);margin-bottom:8px;cursor:pointer;}
+  #dsk-sidebar .sb-un{font-size:13px;font-weight:700;color:var(--t);flex:1;}
+  #dsk-sidebar .sb-uw{font-size:11px;color:var(--G);font-weight:600;}
+  #dsk-sidebar .sb-loginbtn{width:100%;padding:11px;border-radius:12px;background:var(--R);color:#fff;border:none;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--sR);}
+  #dsk-sidebar .sb-adminbtn{width:100%;padding:10px;border-radius:12px;background:linear-gradient(135deg,var(--R),var(--Rd));color:#fff;border:none;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;}
+  #dsk-main{display:block!important;flex:1;min-width:0;max-width:960px;margin:0 auto;overflow-y:auto;height:100vh;}
+  .nav{display:none!important;}
+  #pH,#pG,#pD,#pR,#pA,#pP,#pHist,#pHelp,#pWallet{padding-bottom:40px;padding-top:24px;}
+  .pgrid{grid-template-columns:repeat(4,1fr)!important;}
+  .agrid{grid-template-columns:repeat(5,1fr)!important;}
+  .slide{height:260px!important;}
+  #ntfWrap{left:260px;transform:none;right:20px;width:auto;max-width:400px;}
+  .shov,.eov{align-items:center;justify-content:center;}
+  .sheet,.esheet{border-radius:20px!important;max-width:500px;max-height:80vh;}
+  .page{padding-left:20px;padding-right:20px;}
+}
 </style>
 </head>
 <body>
+
+<!-- DESKTOP SIDEBAR -->
+<div id="dsk-sidebar">
+  <div class="sb-brand">
+    <img src="https://img2.pic.in.th/2669.png" alt="Easy Store">
+    <span>Easy Store</span>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-item on" id="sb-home" onclick="go('home');sbOn('sb-home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>ໜ້າຫຼັກ
+    </div>
+    <div class="sb-item" id="sb-games" onclick="go('games');sbOn('sb-games')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M8 12h2m0 0h2m-2 0v-2m0 2v2"/><circle cx="16" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="14" r="1" fill="currentColor" stroke="none"/></svg>ເກມທັງໝົດ
+    </div>
+    <div class="sb-item" id="sb-history" onclick="needAuth(()=>{go('history');sbOn('sb-history')})">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>ປະຫວັດ
+    </div>
+    <div class="sb-item" id="sb-profile" onclick="needAuth(()=>{go('profile');sbOn('sb-profile')})">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>ໂປຣໄຟລ໌
+    </div>
+    <div class="sb-item" id="sb-help" onclick="go('help');sbOn('sb-help')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/></svg>ຕິດຕໍ່ຫາ
+    </div>
+  </div>
+  <div class="sb-foot">
+    <div id="sb-adminWrap" style="display:none">
+      <button class="sb-adminbtn" onclick="openAdm()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admin Panel
+      </button>
+    </div>
+    <div id="sb-userWrap" style="display:none">
+      <div class="sb-user" onclick="go('profile');sbOn('sb-profile')">
+        <div class="av" id="sb-av">U</div>
+        <div><div class="sb-un" id="sb-un"></div><div class="sb-uw" id="sb-uw"></div></div>
+      </div>
+      <button style="width:100%;padding:9px;border-radius:10px;background:var(--bg3);border:1px solid var(--br);color:var(--t2);font-weight:600;font-size:12px;cursor:pointer;" onclick="doLogout()">ອອກຈາກລະບົບ</button>
+    </div>
+    <div id="sb-loginWrap">
+      <button class="sb-loginbtn" onclick="go('auth')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>ເຂົ້າສູ່ລະບົບ
+      </button>
+    </div>
+  </div>
+</div>
+<!-- DESKTOP MAIN CONTENT -->
+<div id="dsk-main">
 <div id="loader">
   <div class="loader-logo"><img src="https://img2.pic.in.th/2669.png" alt="Easy Store Logo"></div>
   <div class="loader-name">Easy Store</div>
@@ -989,7 +1072,7 @@ let CU=null;
 const PID={home:'pH',games:'pG',detail:'pD',receipt:'pR',auth:'pA',profile:'pP',history:'pHist',help:'pHelp',pWallet:'pWallet',confirm:'pCof'};
 const PURL={home:'/',games:'/games',auth:'/login',profile:'/profile',history:'/history',help:'/contact',pWallet:'/wallet'};
 function loadSess(){CU=S.g('sess');updNav();}
-function updNav(){
+function updNav(){updSidebar();
   const r1=document.getElementById('nR1'),r2=document.getElementById('nR2');
   const dc=document.getElementById('duc'),dn=document.getElementById('dun'),de=document.getElementById('due'),da=document.getElementById('dua');
   const ami=document.getElementById('admmi');
@@ -1366,6 +1449,32 @@ async function loadAllOrders(){try{const d=await api('GET','/admin/orders');S.s(
 async function loadAllUsers(){try{const d=await api('GET','/admin/users');S.s('users',d||[]);}catch(e){console.warn('users load err',e);}}
 
 
+
+// ── Desktop Sidebar ──────────────────────────────────────────
+function sbOn(id){
+  document.querySelectorAll('#dsk-sidebar .sb-item').forEach(i=>i.classList.remove('on'));
+  const el=document.getElementById(id);if(el)el.classList.add('on');
+}
+function updSidebar(){
+  const sw=document.getElementById('sb-userWrap');
+  const lw=document.getElementById('sb-loginWrap');
+  const aw=document.getElementById('sb-adminWrap');
+  if(!sw||!lw)return;
+  if(CU){
+    sw.style.display='block';lw.style.display='none';
+    const av=document.getElementById('sb-av');
+    const un=document.getElementById('sb-un');
+    const uw=document.getElementById('sb-uw');
+    if(av)av.textContent=CU.name[0].toUpperCase();
+    if(un)un.textContent=CU.name;
+    if(uw)uw.textContent=(CU.wallet||0).toLocaleString()+' ກີບ';
+    if(aw)aw.style.display=CU.isAdmin?'block':'none';
+  }else{
+    sw.style.display='none';lw.style.display='block';
+    if(aw)aw.style.display='none';
+  }
+}
+
 window.onload=async()=>{
   await initDB();loadSess();
   // Handle redirect from 404.html
@@ -1392,5 +1501,6 @@ window.addEventListener('popstate',(e)=>{
   go(page,'back');
 });
 </script>
+</div><!-- /dsk-main -->
 </body>
 </html>
