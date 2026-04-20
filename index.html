@@ -556,10 +556,10 @@ input,button,select{font-family:inherit;}img{display:block;}::-webkit-scrollbar{
   .sheet,.esheet{border-radius:20px!important;max-width:520px;max-height:80vh;}
 }
 
-/* ── Desktop Auth Modal ─────────────────────────────── */
-#dsk-auth-modal{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+/* ── Auth Modal (all devices) ───────────────────────── */
+#dsk-auth-modal{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px;}
 #dsk-auth-modal.on{display:flex!important;}
-.dam-box{background:var(--bg2);border-radius:20px;width:100%;max-width:400px;padding:32px 28px 28px;box-shadow:0 24px 64px rgba(0,0,0,.4);position:relative;border:1px solid var(--br);}
+.dam-box{background:var(--bg2);border-radius:20px;width:100%;max-width:400px;padding:28px 22px 24px;box-shadow:0 24px 64px rgba(0,0,0,.5);position:relative;border:1px solid var(--br);max-height:92vh;overflow-y:auto;}
 .dam-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:var(--t3);cursor:pointer;line-height:1;}
 .dam-tabs{display:flex;border-bottom:1.5px solid var(--br);margin-bottom:24px;}
 .dam-tab{flex:1;text-align:center;padding:10px;font-size:14px;font-weight:700;color:var(--t3);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:color .2s,border-color .2s;}
@@ -1137,7 +1137,7 @@ function updNav(){updSidebar();
     if(daw)daw.style.display=CU.isAdmin?'block':'none';
     if(dlw)dlw.style.display='none';
   }else{
-    const b=`<button class="nav-login" onclick="go('auth')">ເຂົ້າສູ່ລະບົບ</button>`;
+    const b=`<button class="nav-login" onclick="openAuthModal('login')">ເຂົ້າສູ່ລະບົບ</button>`;
     if(r1)r1.innerHTML=b;if(r2)r2.innerHTML=b;
     dc.classList.remove('on');if(ami)ami.style.display='none';
     if(daw)daw.style.display='none';if(dlw)dlw.style.display='block';
@@ -1210,9 +1210,10 @@ let SI=0,slTm=null,isDg=false,sX=0,cX=0;
 function rBanner(){
   const bans=S.g('bans')||[];const tr=document.getElementById('sltr'),dt=document.getElementById('sldots');if(!tr)return;tr.innerHTML='';dt.innerHTML='';
   bans.forEach((b,i)=>{const s=document.createElement('div');s.className='slide';s.innerHTML=b.url&&b.url.startsWith('http')?`<img src="${b.url}" alt="" onerror="this.parentNode.innerHTML='<div class=slph style=background:${b.col}><div class=slt>${b.title}</div></div>'">`:`<div class="slph" style="background:${b.col}"><div class="slt">${b.title}</div><div class="sls">${b.sub||''}</div></div>`;tr.appendChild(s);const d=document.createElement('div');d.className='dot'+(i===0?' on':'');d.onclick=()=>gSlide(i);dt.appendChild(d);});
-  SI=0;cIsInfinite=false;cTransitioning=false;
-  const trReset=document.getElementById('sltr');if(trReset)trReset.dataset.infinite='';
-  clearInterval(slTm);slTm=setInterval(()=>gSlide(SI+1),4500);
+  SI=0;cIdx=1;cCount=0;cLock=false;
+  const trReset=document.getElementById('sltr');if(trReset){trReset.dataset.c='';trReset.style.transition='';}
+  clearInterval(slTm);clearInterval(cTimer);
+  slTm=setInterval(()=>gSlide(cIdx+1),4500);
   setTimeout(initCarousel,80);
   const w=document.getElementById('slw');if(!w)return;const gX=e=>e.touches?e.touches[0].clientX:e.clientX;
   w.onmousedown=e=>{isDg=true;sX=gX(e);cX=sX;};w.ontouchstart=e=>{isDg=true;sX=gX(e);cX=sX;};
@@ -1392,7 +1393,7 @@ async function doReg(){
     toast('ລົ້ມເຫຼວ: '+e.message,'err');
   }
 }
-function doLogout(){if(!confirm('ອອກ?'))return;CU=null;S.d('sess');updNav();go('home','back');toast('ອອກຈາກລະບົບແລ້ວ','ok');}
+function doLogout(){if(!confirm('ອອກ?'))return;CU=null;_apiToken=null;S.d('sess');updNav();go('home','back');toast('ອອກຈາກລະບົບແລ້ວ','ok');}
 
 function rProf(){
   if(!CU)return;
@@ -1508,12 +1509,14 @@ async function loadAllUsers(){try{const d=await api('GET','/admin/users');S.s('u
 // ── Desktop Auth Modal ────────────────────────────────────────
 function isDesktop(){return window.innerWidth>=900;}
 function openAuthModal(tab){
-  if(!isDesktop()){go('auth');return;}
+  // Use modal on ALL devices
   document.getElementById('dsk-auth-modal').classList.add('on');
+  document.body.style.overflow='hidden';
   damTab(tab||'login');
 }
 function closeAuthModal(){
   document.getElementById('dsk-auth-modal').classList.remove('on');
+  document.body.style.overflow='';
 }
 function damTab(t){
   document.getElementById('dam-login').style.display=t==='login'?'block':'none';
@@ -1561,70 +1564,59 @@ async function damRegister(){
 
 // ── Infinite Carousel ─────────────────────────────────────────
 // ── Carousel (Infinite, correct) ─────────────────────────────
-let cIsInfinite=false, cTotal=0, cTransitioning=false;
+// ── Infinite Carousel (no-jump method) ───────────────────────
+let cIdx=0, cCount=0, cLock=false, cTimer=null;
 
 function initCarousel(){
-  const isDesk=window.innerWidth>=900;
   const slw=document.getElementById('slw');
   if(!slw)return;
-  if(isDesk){
+  if(window.innerWidth>=900){
     slw.classList.add('carousel-mode');
-    buildInfiniteCarousel();
+    setupCarousel();
   }else{
     slw.classList.remove('carousel-mode');
-    cIsInfinite=false;
   }
 }
 
-function buildInfiniteCarousel(){
+function setupCarousel(){
   const tr=document.getElementById('sltr');
-  if(!tr)return;
-  if(tr.dataset.infinite==='1')return; // already built
-  const origSlides=Array.from(tr.querySelectorAll('.slide'));
-  if(origSlides.length<1)return;
-  // Clone last -> prepend, clone first -> append
-  const cloneLast=origSlides[origSlides.length-1].cloneNode(true);
-  const cloneFirst=origSlides[0].cloneNode(true);
-  tr.insertBefore(cloneLast, origSlides[0]);
-  tr.appendChild(cloneFirst);
-  tr.dataset.infinite='1';
-  cTotal=tr.querySelectorAll('.slide').length;
-  cIsInfinite=true;
-  // Jump to real first (index 1) without animation
-  SI=1;
-  _setCarouselPos(false);
+  if(!tr||tr.dataset.c==='1')return;
+  const slides=Array.from(tr.children);
+  if(!slides.length)return;
+  cCount=slides.length;
+  // Prepend clone of last, append clone of first
+  tr.insertBefore(slides[slides.length-1].cloneNode(true), slides[0]);
+  tr.appendChild(slides[0].cloneNode(true));
+  tr.dataset.c='1';
+  cIdx=1; // start at real first
+  cApply(false);
 }
 
-function _getSlideW(){
+function cApply(anim){
+  const tr=document.getElementById('sltr');
   const slw=document.getElementById('slw');
-  if(!slw)return 0;
-  const w=slw.offsetWidth;
-  // slide width = 56% of container, offset so active is centered
-  // center = (w - slideW)/2, translateX = -(SI * slideW) + center
-  const slideW=w*0.56;
-  return {w, slideW};
-}
-
-function _setCarouselPos(animate){
-  const tr=document.getElementById('sltr');
-  if(!tr)return;
-  const {w, slideW}=_getSlideW();
-  const offset=(w-slideW)/2;
-  const tx=-(SI*slideW)+offset;
-  if(!animate){
+  if(!tr||!slw)return;
+  const W=slw.offsetWidth;
+  const SW=W*0.56; // slide width 56%
+  const offset=(W-SW)/2;
+  const tx=-(cIdx*SW)+offset;
+  tr.style.willChange='transform';
+  if(!anim){
     tr.style.transition='none';
     tr.style.transform=`translateX(${tx}px)`;
-    tr.offsetHeight; // force reflow
-    tr.style.transition='';
-  }else{
+    void tr.offsetWidth; // reflow
+    tr.style.transition='transform 0.55s cubic-bezier(0.4,0,0.2,1)';
+  } else {
     tr.style.transform=`translateX(${tx}px)`;
   }
-  // Mark active
-  const slides=tr.querySelectorAll('.slide');
-  slides.forEach((s,i)=>{
-    s.classList.remove('c-active');
-    if(i===SI)s.classList.add('c-active');
+  // Active class
+  tr.querySelectorAll('.slide').forEach((s,i)=>{
+    s.classList.toggle('c-active', i===cIdx);
   });
+  // Dots
+  const bans=S.g('bans')||[];
+  const realIdx=((cIdx-1)%cCount+cCount)%cCount;
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===realIdx));
 }
 
 function gSlide(n){
@@ -1632,41 +1624,32 @@ function gSlide(n){
   const isC=slw&&slw.classList.contains('carousel-mode');
   const tr=document.getElementById('sltr');
   const bans=S.g('bans')||[];
-  // dots always use real index
   if(!isC){
-    // Mobile: normal mode
     SI=((n%bans.length)+bans.length)%bans.length;
     if(tr)tr.style.transform=`translateX(-${SI*100}%)`;
     document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===SI));
     return;
   }
-  if(cTransitioning)return;
-  cTransitioning=true;
-  SI=n;
-  _setCarouselPos(true);
-  // Update dots (real index = SI-1 because of prepended clone)
-  const realIdx=((SI-1)%bans.length+bans.length)%bans.length;
-  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===realIdx));
-  // After transition: jump if on clone
-  if(tr){
-    const onEnd=()=>{
-      cTransitioning=false;
-      if(SI>=cTotal-1){
-        // Was on cloned first -> jump to real first
-        SI=1; _setCarouselPos(false);
-      }else if(SI<=0){
-        // Was on cloned last -> jump to real last
-        SI=cTotal-2; _setCarouselPos(false);
-      }
-    };
-    tr.addEventListener('transitionend',onEnd,{once:true});
-    // Fallback in case transitionend doesn't fire
-    setTimeout(()=>{if(cTransitioning){cTransitioning=false;}},700);
-  }
+  if(cLock)return;
+  cLock=true;
+  cIdx=n;
+  cApply(true);
+  tr.addEventListener('transitionend', function done(){
+    tr.removeEventListener('transitionend',done);
+    cLock=false;
+    // Silent jump for infinite loop
+    if(cIdx>=cCount+1){ cIdx=1; cApply(false); }
+    else if(cIdx<=0){ cIdx=cCount; cApply(false); }
+  },{once:true});
+  setTimeout(()=>{cLock=false;},700);
 }
 
-function slBy(d){gSlide(SI+d);}
-window.addEventListener('resize',()=>{initCarousel();if(cIsInfinite)_setCarouselPos(false);});
+function slBy(d){gSlide(cIdx+d);}
+window.addEventListener('resize',()=>{
+  initCarousel();
+  const slw=document.getElementById('slw');
+  if(slw&&slw.classList.contains('carousel-mode'))cApply(false);
+});
 
 // ── Desktop Header ───────────────────────────────────────────
 function dhOn(id){
