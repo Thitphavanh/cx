@@ -161,10 +161,10 @@ input,button,select{font-family:inherit;}img{display:block;}::-webkit-scrollbar{
 .btn-cfm:active{transform:scale(.97);}
 .btn-cxl{width:100%;background:var(--bg3);border:1px solid var(--br);color:var(--t2);font-weight:700;font-size:15px;padding:13px;border-radius:14px;cursor:pointer;}
 /* SLIDER */
-.slw{position:relative;overflow:hidden;touch-action:pan-y;width:100%;}
+.slw{position:relative;overflow:hidden;touch-action:pan-y;}
 .sltr{display:flex;will-change:transform;}
-.slide{min-width:100%;flex-shrink:0;overflow:hidden;aspect-ratio:16/7;}
-.slide img{width:100%;height:100%;object-fit:cover;display:block;}
+.slide{min-width:100%;height:184px;flex-shrink:0;overflow:hidden;}
+.slide img{width:100%;height:100%;object-fit:cover;}
 .slph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;}
 .slt{font-size:22px;font-weight:900;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.5);}
 .sls{font-size:12px;color:rgba(255,255,255,.85);background:rgba(0,0,0,.35);padding:4px 14px;border-radius:20px;}
@@ -500,10 +500,13 @@ input,button,select{font-family:inherit;}img{display:block;}::-webkit-scrollbar{
 
 /* Carousel banner */
 .slw{position:relative;overflow:hidden;touch-action:pan-y;}
-.slw.carousel-mode{overflow:visible;}
-.slw.carousel-mode .sltr{display:flex;align-items:center;will-change:transform;transition:transform .6s cubic-bezier(.4,0,.2,1);}
-.slw.carousel-mode .slide{flex-shrink:0;border-radius:16px;overflow:hidden;transition:opacity .4s,filter .4s,transform .4s;opacity:.4;filter:blur(2px) brightness(.65);transform:scale(.88);cursor:pointer;}
-.slw.carousel-mode .slide.c-active{opacity:1!important;filter:none!important;transform:scale(1)!important;cursor:default;}
+/* Carousel only on desktop */
+@media(min-width:900px){
+  .slw.carousel-mode{overflow:visible;}
+  .slw.carousel-mode .sltr{display:flex;align-items:center;will-change:transform;transition:transform .6s cubic-bezier(.4,0,.2,1);}
+  .slw.carousel-mode .slide{flex-shrink:0;border-radius:16px;overflow:hidden;transition:opacity .4s,filter .4s,transform .4s;opacity:.4;filter:blur(2px) brightness(.65);transform:scale(.88);cursor:pointer;}
+  .slw.carousel-mode .slide.c-active{opacity:1!important;filter:none!important;transform:scale(1)!important;cursor:default;}
+}
 
 @media(min-width:900px){
   :root{--bot:0px;--nav:64px;}
@@ -823,8 +826,97 @@ input,button,select{font-family:inherit;}img{display:block;}::-webkit-scrollbar{
   <div style="height:20px"></div>
 </div>
 
-<!-- AUTH PAGE REMOVED - using modal popup only -->
-<div style="display:none!important" id="pA"></div>
+<!-- AUTH -->
+<div class="page auth-new" id="pA" style="display:none!important">
+  <div class="auth-bg-art">
+    <div class="auth-orb auth-orb1"></div>
+    <div class="auth-orb auth-orb2"></div>
+    <div class="auth-orb auth-orb3"></div>
+  </div>
+  <button class="auth-back-btn" onclick="go('home')">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <div class="auth-wrap">
+    <!-- BRAND -->
+    <div class="auth-brand">
+      <div class="auth-logo-text">
+        <span class="auth-logo-e">E</span><span class="auth-logo-asy">ASY</span><span class="auth-logo-space"> </span><span class="auth-logo-store">STORE</span>
+      </div>
+      <div class="auth-logo-line"></div>
+      <div class="auth-tagline">TOP UP · ທຸກເກມ · 24/7</div>
+    </div>
+    <!-- CARD -->
+    <div class="auth-card">
+      <!-- TAB INDICATOR -->
+      <div class="auth-tab-row">
+        <button class="auth-tab on" id="tL" onclick="aTab('login')">ເຂົ້າສູ່ລະບົບ</button>
+        <button class="auth-tab" id="tR" onclick="aTab('reg')">ສ້າງບັນຊີ</button>
+        <div class="auth-tab-slider" id="authSlider"></div>
+      </div>
+      <!-- LOGIN FORM -->
+      <div id="fL">
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <input type="text" id="lE" placeholder="Email ຫຼື Username" autocomplete="username">
+        </div>
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <input type="password" id="lP" placeholder="ລະຫັດຜ່ານ" autocomplete="current-password">
+          <button class="auth-eye" onclick="togglePw('lP',this)" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <button class="auth-submit-btn" onclick="doLogin()">
+          ເຂົ້າສູ່ລະບົບ
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="auth-switch">ຍັງບໍ່ມີບັນຊີ? <b onclick="aTab('reg')">ສ້າງໃໝ່ຟຣີ</b></div>
+      </div>
+      <!-- REGISTER FORM -->
+      <div id="fR" style="display:none">
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <input type="text" id="rN" placeholder="ຊື່ (ຂັ້ນຕ່ຳ 5 ຕົວ)">
+        </div>
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <input type="email" id="rE" placeholder="Email (@gmail.com)" autocomplete="email">
+        </div>
+        <div class="ferr" id="eE" style="margin:-8px 0 8px 0;padding-left:4px"></div>
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <input type="password" id="rP" placeholder="ລະຫັດຜ່ານ (6+ ຕົວ)" autocomplete="new-password">
+          <button class="auth-eye" onclick="togglePw('rP',this)" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="ferr" id="eP" style="margin:-8px 0 8px 0;padding-left:4px"></div>
+        <div class="auth-field">
+          <div class="auth-field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <input type="password" id="rP2" placeholder="ຢືນຢັນລະຫັດຜ່ານ" autocomplete="new-password">
+        </div>
+        <div class="ferr" id="eP2" style="margin:-8px 0 8px 0;padding-left:4px"></div>
+        <button class="auth-submit-btn" onclick="doReg()">
+          ສ້າງບັນຊີ
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="auth-switch">ມີບັນຊີຢູ່ແລ້ວ? <b onclick="aTab('login')">ເຂົ້າສູ່ລະບົບ</b></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- WALLET PAGE -->
 <div class="page" id="pWallet">
@@ -1045,7 +1137,7 @@ async function initDB(){
 
 let CU=null;
 const PID={home:'pH',games:'pG',detail:'pD',receipt:'pR',auth:'pA',profile:'pP',history:'pHist',help:'pHelp',pWallet:'pWallet',confirm:'pCof'};
-const PURL={home:'/',games:'/games',profile:'/profile',history:'/history',help:'/contact',pWallet:'/wallet'};
+const PURL={home:'/',games:'/games',auth:'/login',profile:'/profile',history:'/history',help:'/contact',pWallet:'/wallet'};
 function loadSess(){CU=S.g('sess');updNav();}
 function updNav(){updSidebar();
   const r1=document.getElementById('nR1'),r2=document.getElementById('nR2');
@@ -1657,10 +1749,8 @@ window.onload=async()=>{
   if(redirectPath){ sessionStorage.removeItem('es_redirect'); window.history.replaceState(null,'',redirectPath); }
   // Route based on URL path
   const p = window.location.pathname;
-  const urlMap={'/':'home','/games':'games','/profile':'profile','/history':'history','/contact':'help','/wallet':'pWallet'};
+  const urlMap={'/':'home','/games':'games','/login':'home','/profile':'profile','/history':'history','/contact':'help','/wallet':'pWallet'};
   let startPage = urlMap[p] || 'home';
-  // If URL is /login, redirect to home and open modal
-  if(p === '/login'){ window.history.replaceState(null,'','/'); setTimeout(()=>openAuthModal('login'),400); }
   // Handle /game/xxx paths
   if(p.startsWith('/game/')){
     const slug = p.replace('/game/','');
@@ -1670,10 +1760,15 @@ window.onload=async()=>{
     else { startPage='home'; }
   }
   go(startPage);showPopups();
+  // If URL was /login, open auth modal
+  if(window.location.pathname==='/login'&&!CU){
+    setTimeout(()=>openAuthModal('login'),400);
+    window.history.replaceState(null,'','/');
+  }
   setTimeout(()=>{const l=document.getElementById('loader');if(l)l.classList.add('hide');},600);
 };
 window.addEventListener('popstate',(e)=>{
-  const urlMap={'/':'home','/games':'games','/profile':'profile','/history':'history','/contact':'help','/wallet':'pWallet'};
+  const urlMap={'/':'home','/games':'games','/login':'home','/profile':'profile','/history':'history','/contact':'help','/wallet':'pWallet'};
   const page=urlMap[window.location.pathname]||'home';
   go(page,'back');
 });
