@@ -1747,22 +1747,18 @@ async function wonddCheckBalance(){
 async function wonddSyncPacks(){
   const log=document.getElementById('wondd-log');
   log.style.display='block';
-  log.textContent='[WonDD] ກຳລັງ sync packcode...
-';
+  log.textContent='[WonDD] ກຳລັງ sync packcode...\n';
   const games=['freefire','rov','undawn','blackcover'];
   for(const g of games){
     try{
       const d=await api('GET','/wondd/packlist?game='+g);
-      log.textContent+=`[${g}] ໄດ້ ${Array.isArray(d)?d.length:0} packs
-`;
+      log.textContent+=`[${g}] ໄດ້ ${Array.isArray(d)?d.length:0} packs\n`;
       log.scrollTop=log.scrollHeight;
     }catch(e){
-      log.textContent+=`[${g}] Error: ${e.message}
-`;
+      log.textContent+=`[${g}] Error: ${e.message}\n`;
     }
   }
-  log.textContent+='[WonDD] Sync ສຳເລັດ ✅
-';
+  log.textContent+='[WonDD] Sync ສຳເລັດ ✅\n';
   toast('Sync WonDD ສຳເລັດ','ok');
 }
 
