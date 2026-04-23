@@ -1565,13 +1565,28 @@ function rProf(){
   const users=S.g('users')||[];const u=users.find(x=>x.email===CU.email);
   if(u){const m=Math.floor((Date.now()-new Date(u.joined))/(1000*60*60*24*30));document.getElementById('pjd').textContent=m||'<1';}
 }
-function rHist(){
-  const gm=S.g('games')||[];let ords=S.g('orders')||[];
-  if(CU&&!CU.isAdmin)ords=ords.filter(o=>o.userId===CU.email);
+function _renderHistList(ords){
+  const gm=S.g('games')||[];
   const list=document.getElementById('histL');
   if(!ords.length){list.innerHTML='<div class="empty"><p>ຍັງບໍ່ມີ Order</p></div>';return;}
   list.innerHTML=ords.map(o=>{const g=gm.find(x=>x.name===o.game);const st=o.status==='done'?'<span class="st stdone">ສຳເລັດ</span>':o.status==='failed'?'<span class="st stfail">ລົ້ມ</span>':'<span class="st stpend">ລໍຖ້າ</span>';
   return `<div class="hitem" onclick="viewR('${o.id}')"><div class="hic">${g&&g.img?`<img src="${g.img}">`:`<div class="hph" style="background:${g?g.col:'#333'};font-size:22px">${g?g.e:''}</div>`}</div><div style="flex:1;min-width:0"><div class="hnm">${o.game}</div><div class="hpk">${o.pkg}</div><div class="htm2">${o.time}</div><div class="hid">${o.id}</div></div><div class="hr2"><div class="hpr">${o.total||o.price} ກີບ</div>${st}</div></div>`;}).join('');
+}
+async function rHist(){
+  const list=document.getElementById('histL');
+  list.innerHTML='<div class="empty"><p>ກຳລັງໂຫລດ...</p></div>';
+  try{
+    // ດຶງ orders ຈາກ server ສະເໝີ (ສະຖານະຖືກຕ້ອງ)
+    const endpoint = CU&&CU.isAdmin ? '/admin/orders' : '/user/orders';
+    const fresh = await api('GET', endpoint);
+    S.s('orders', fresh||[]);
+    _renderHistList(fresh||[]);
+  }catch(e){
+    // fallback ໃຊ້ cache ຖ້າ offline
+    let ords=S.g('orders')||[];
+    if(CU&&!CU.isAdmin)ords=ords.filter(o=>o.userId===CU.email);
+    _renderHistList(ords);
+  }
 }
 function viewR(oid){
   const ords=S.g('orders')||[];const o=ords.find(x=>x.id===oid);if(!o)return;
