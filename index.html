@@ -823,18 +823,15 @@ input,button,select{font-family:inherit;}img{display:block;}::-webkit-scrollbar{
 
 <!-- RECEIPT -->
 <div class="page" id="pR">
-  <div class="rhero"><div class="ric2"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><div class="rstat">ສົ່ງ Order ສຳເລັດ!</div><div style="font-size:12px;opacity:.8;margin-top:4px">ກະລຸນາຊຳລະ ແລ້ວສົ່ງ Slip ຢືນຢັນ</div><div class="roid" id="roid"></div></div>
+  <div class="rhero"><div class="ric2"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><div class="rstat">ທຸລະກຳສຳເລັດ!</div><div style="font-size:12px;opacity:.8;margin-top:4px">ໝາຍເລກອ້າງອີງ</div><div class="roid" id="roid"></div></div>
   <div class="rcard">
     <div class="rgrw"><div class="rgic" id="rgic"></div><div><div class="rgnm" id="rgnm"></div><div class="rgpk" id="rgpk"></div></div></div>
     <div class="rrow"><div class="rlbl">Game ID</div><div class="rval mono" id="ruid"></div></div>
     <div class="rrow"><div class="rlbl">ຊ່ອງທາງຊຳລະ</div><div class="rval" id="rpay"></div></div>
-    <div class="rrow"><div class="rlbl">ລາຄາ</div><div class="rval price" id="rprice"></div></div>
     <div class="rrow" id="rdiscrow" style="display:none"><div class="rlbl">ສ່ວນລົດ</div><div class="rval" style="color:#16a34a" id="rdisc"></div></div>
-    <div class="rrow"><div class="rlbl">ຍອດຊຳລະ</div><div class="rval price" id="rtotal"></div></div>
     <div class="rrow"><div class="rlbl">ເວລາ</div><div class="rval" id="rtime"></div></div>
     <div class="rrow"><div class="rlbl">ສະຖານະ</div><div class="rval pend" id="rstatEl">ລໍຖ້າດຳເນີນການ</div></div>
   </div>
-  <div class="rnote"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--O)" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg><p>ກ່ອນໂອນ ກະລຸນາ Screenshot Slip ແລ້ວສົ່ງໃຫ້ທີມງານ</p></div>
   <div class="ract"><button class="rbtn1" onclick="go('home')">ໜ້າຫຼັກ</button><button class="rbtn2" onclick="go('history')">ປະຫວັດ</button></div>
   <div style="height:20px"></div>
 </div>
@@ -1471,10 +1468,8 @@ async function doOrder(){showLoading('ກຳລັງສົ່ງຄຳສັ່
     document.getElementById('rgic').innerHTML=TH(g,true);
     document.getElementById('rgnm').textContent=g.name;document.getElementById('rgpk').textContent=p.name;
     document.getElementById('ruid').textContent=uid;document.getElementById('rpay').textContent=payNm;
-    document.getElementById('rprice').textContent=p.price+' ກີບ';
     const base=numParse(p.price);const total=Math.max(0,base-discAmt);
     const rdr=document.getElementById('rdiscrow');if(discAmt>0){rdr.style.display='flex';document.getElementById('rdisc').textContent='-'+discAmt.toLocaleString()+' ກີບ';}else{rdr.style.display='none';}
-    document.getElementById('rtotal').textContent=total.toLocaleString()+' ກີບ';
     document.getElementById('rtime').textContent=ord.time;
     document.getElementById('rstatEl').textContent='ລໍຖ້າ';document.getElementById('rstatEl').className='rval pend';
     go('receipt');
