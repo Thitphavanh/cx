@@ -1175,6 +1175,24 @@ let CU=null;
 const PID={home:'pH',games:'pG',detail:'pD',receipt:'pR',auth:'pA',profile:'pP',history:'pHist',help:'pHelp',pWallet:'pWallet',confirm:'pCof'};
 const PURL={home:'/',games:'/games',auth:'/login',profile:'/profile',history:'/history',help:'/contact',pWallet:'/wallet'};
 function loadSess(){CU=S.g('sess');updNav();}
+
+// ── Real-time wallet refresh (ທຸກ 30 ວິ) ─────────────────────────────────
+let _walletPoll=null;
+async function refreshWallet(){
+  if(!CU)return;
+  try{
+    const u=await api('GET','/user/profile');
+    if(u&&u.wallet!==undefined&&CU.wallet!==u.wallet){
+      CU.wallet=u.wallet;S.s('sess',CU);updNav();
+    }
+  }catch(e){}
+}
+function startWalletPoll(){
+  if(_walletPoll)clearInterval(_walletPoll);
+  refreshWallet();
+  _walletPoll=setInterval(refreshWallet,30000);
+}
+function stopWalletPoll(){if(_walletPoll){clearInterval(_walletPoll);_walletPoll=null;}}
 function updNav(){updSidebar();
   const r1=document.getElementById('nR1'),r2=document.getElementById('nR2');
   const dc=document.getElementById('duc'),dn=document.getElementById('dun'),de=document.getElementById('due'),da=document.getElementById('dua');
@@ -1526,7 +1544,7 @@ async function doLogin(){
     setToken(res.token);
     CU={name:res.user.name,email:res.user.email,role:res.user.role||'user',isAdmin:res.user.role==='admin',wallet:res.user.wallet||0,user_id:res.user.user_id||'-'};
     S.s('sess',CU);updNav();
-    showSuccess('ສຳເລັດ!','ສະບາຍດີ '+CU.name,()=>{go('home');if(CU.isAdmin)setTimeout(openAdm,400);});
+    startWalletPoll();showSuccess('ສຳເລັດ!','ສະບາຍດີ '+CU.name,()=>{go('home');if(CU.isAdmin)setTimeout(openAdm,400);});
   }catch(e){
     toast('ຂໍ້ມູນບໍ່ຖືກຕ້ອງ','err');
   }
@@ -1544,13 +1562,13 @@ async function doReg(){
     setToken(res.token);
     CU={name:res.user.name,email:res.user.email,role:'user',isAdmin:false,wallet:0,user_id:res.user.user_id||'-'};
     S.s('sess',CU);updNav();
-    showSuccess('ສຳເລັດ!','ຍິນດີຕ້ອນຮັບ '+name,()=>go('home'));
+    startWalletPoll();showSuccess('ສຳເລັດ!','ຍິນດີຕ້ອນຮັບ '+name,()=>go('home'));
   }catch(e){
     if(e.message.includes('duplicate')||e.message.includes('exist')){fe('eE','ຖືກໃຊ້ແລ້ວ');return;}
     toast('ລົ້ມເຫຼວ: '+e.message,'err');
   }
 }
-function doLogout(){if(!confirm('ອອກ?'))return;CU=null;_apiToken=null;S.d('sess');updNav();go('home','back');toast('ອອກຈາກລະບົບແລ້ວ','ok');}
+function doLogout(){if(!confirm('ອອກ?'))return;stopWalletPoll();CU=null;_apiToken=null;S.d('sess');updNav();go('home','back');toast('ອອກຈາກລະບົບແລ້ວ','ok');}
 
 function rProf(){
   if(!CU)return;
@@ -1717,12 +1735,13 @@ function editUser(i){
     const update={wallet:newWallet,role:newRole};
     if(newName&&newName!==u.name)update.name=newName;
     if(newPw)update.password=newPw;
-    users[i]={...u,...update,name:newName||u.name};
-    S.s('users',users);rUsrA((document.getElementById('uSearch')||{}).value||'');
+    showLoading('ກຳລັງອັບເດດ...');
     try{
       await api('PUT','/admin/user/'+u.email,update);
-      toast('ອັບເດດ user ສຳເລັດ','ok');
-    }catch(e){toast('Error: '+e.message,'err');}
+      users[i]={...u,...update,name:newName||u.name};
+      S.s('users',users);rUsrA((document.getElementById('uSearch')||{}).value||'');
+      hideLoading();toast('ອັບເດດ user ສຳເລັດ','ok');
+    }catch(e){hideLoading();toast('Error: '+e.message,'err');}
   });
 }
 async function confirmDelUser(i){
@@ -1826,7 +1845,7 @@ async function damLogin(){
     hideLoading();
     CU={name:res.user.name,email:res.user.email,role:res.user.role||'user',isAdmin:res.user.role==='admin',wallet:res.user.wallet||0,user_id:res.user.user_id||'-'};
     S.s('sess',CU);updNav();closeAuthModal();
-    showSuccess('ສຳເລັດ!','ສະບາຍດີ '+CU.name,()=>{go('home');if(CU.isAdmin)setTimeout(openAdm,400);});
+    startWalletPoll();showSuccess('ສຳເລັດ!','ສະບາຍດີ '+CU.name,()=>{go('home');if(CU.isAdmin)setTimeout(openAdm,400);});
   }catch(e){hideLoading();toast('ຂໍ້ມູນບໍ່ຖືກຕ້ອງ','err');}
 }
 async function damRegister(){
@@ -1851,7 +1870,7 @@ async function damRegister(){
     CU={name:res.user.name,email:res.user.email,role:'user',isAdmin:false,wallet:0,user_id:res.user.user_id||'-'};
     hideLoading();
     S.s('sess',CU);updNav();closeAuthModal();
-    showSuccess('ສຳເລັດ!','ຍິນດີຕ້ອນຮັບ '+name,()=>go('home'));
+    startWalletPoll();showSuccess('ສຳເລັດ!','ຍິນດີຕ້ອນຮັບ '+name,()=>go('home'));
   }catch(e){hideLoading();toast(e.message,'err');}
 }
 
