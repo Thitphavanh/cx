@@ -1173,7 +1173,7 @@ async function initDB(){
 
 let CU=null;
 const PID={home:'pH',games:'pG',detail:'pD',receipt:'pR',auth:'pA',profile:'pP',history:'pHist',help:'pHelp',pWallet:'pWallet',confirm:'pCof'};
-const PURL={home:'/',games:'/games',auth:'/login',profile:'/profile',history:'/history',help:'/contact',pWallet:'/wallet'};
+const PURL={home:'/',games:'/games',auth:'/login',profile:'/profile',history:'/history',help:'/contact',pWallet:'/wallet',receipt:'/receipt'};
 function loadSess(){CU=S.g('sess');updNav();}
 
 // ── Real-time wallet refresh (ທຸກ 30 ວິ) ─────────────────────────────────
@@ -1230,9 +1230,11 @@ function go(v,dir='enter'){
   window.scrollTo(0,0);
   if(v==='home')rHome();if(v==='games')rGrid('agG');if(v==='history')rHist();
   if(v==='profile')rProf();if(v==='help')rHelp();if(v==='pWallet')rWallet();
-  // Update URL
-  const url=PURL[v]||'/';
-  window.history.pushState({page:v},''  ,url);
+  // Update URL — detail/receipt push URL เองแล้ว
+  if(v!=='detail'&&v!=='receipt'){
+    const url=PURL[v]||'/';
+    window.history.pushState({page:v},'',url);
+  }
 }
 function bn(el){document.querySelectorAll('.bni').forEach(i=>i.classList.remove('on'));el.classList.add('on');}
 function oD(){document.getElementById('drw').classList.add('on');document.getElementById('dov').classList.add('on');document.getElementById('hamB')&&document.getElementById('hamB').classList.add('x');}
@@ -1524,6 +1526,7 @@ async function doOrder(){
       const rdr=document.getElementById('rdiscrow');if(discAmt>0){rdr.style.display='flex';document.getElementById('rdisc').textContent='-'+discAmt.toLocaleString()+' ກີບ';}else{rdr.style.display='none';}
       document.getElementById('rtime').textContent=ord.time;
       document.getElementById('rstatEl').textContent='ທຸລະກຳສຳເລັດ';document.getElementById('rstatEl').className='rval done';
+      window.history.pushState({page:'receipt',orderId:ord.id},'','/receipt/'+ord.id);
       go('receipt');
     }
   }catch(wonddErr){
@@ -1628,7 +1631,9 @@ function viewR(oid){
   const rdr=document.getElementById('rdiscrow');const da=o.discount||0;
   if(da>0){rdr.style.display='flex';document.getElementById('rdisc').textContent='-'+parseInt(da).toLocaleString()+' ກີບ';}else{rdr.style.display='none';}
   document.getElementById('rtime').textContent=o.time;
-  const el=document.getElementById('rstatEl');el.textContent=o.status==='done'?'ສຳເລັດ':o.status==='failed'?'ລົ້ມ':'ລໍຖ້າ';el.className='rval '+(o.status==='done'?'done':'pend');go('receipt');
+  const el=document.getElementById('rstatEl');el.textContent=o.status==='done'?'ທຸລະກຳສຳເລັດ':o.status==='failed'?'ລົ້ມເຫຼວ':'ລໍຖ້າ';el.className='rval '+(o.status==='done'?'done':'pend');
+  window.history.pushState({page:'receipt',orderId:o.id},'','/receipt/'+o.id);
+  go('receipt');
 }
 function rHelp(){
   const ct=S.g('contacts')||{};const card=document.getElementById('ctCard');const items=[];
@@ -2049,15 +2054,23 @@ window.onload=async()=>{
   const p = window.location.pathname;
   const urlMap={'/':'home','/games':'games','/login':'home','/profile':'profile','/history':'history','/contact':'help','/wallet':'pWallet'};
   let startPage = urlMap[p] || 'home';
-  // Handle /game/xxx paths
+  // Handle /game/slug
   if(p.startsWith('/game/')){
     const slug = p.replace('/game/','');
     const gm = S.g('games')||[];
     const g = gm.find(x=>x.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-ກ-ໝ]/g,'')=== slug);
-    if(g && CU){ cGid=g.id; startPage='detail'; }
+    if(g){ cGid=g.id; startPage='detail'; }
     else { startPage='home'; }
   }
-  go(startPage);showPopups();
+  // Handle /receipt/ORDER_ID
+  else if(p.startsWith('/receipt/')){
+    const oid = p.replace('/receipt/','');
+    const ords = S.g('orders')||[];
+    const o = ords.find(x=>x.id===oid);
+    if(o){ viewR(oid); startPage=null; }
+    else { startPage='home'; }
+  }
+  if(startPage)go(startPage);showPopups();
   // If URL was /login, open auth modal
   if(window.location.pathname==='/login'&&!CU){
     setTimeout(()=>openAuthModal('login'),400);
@@ -2066,9 +2079,22 @@ window.onload=async()=>{
   // loader hidden above
 };
 window.addEventListener('popstate',(e)=>{
+  const p=window.location.pathname;
   const urlMap={'/':'home','/games':'games','/login':'home','/profile':'profile','/history':'history','/contact':'help','/wallet':'pWallet'};
-  const page=urlMap[window.location.pathname]||'home';
-  go(page,'back');
+  if(p.startsWith('/game/')){
+    const slug=p.replace('/game/','');
+    const gm=S.g('games')||[];
+    const g=gm.find(x=>x.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-ກ-ໝ]/g,'')===slug);
+    if(g){cGid=g.id;go('detail','back');}else go('home','back');
+  } else if(p.startsWith('/receipt/')){
+    const oid=p.replace('/receipt/','');
+    const ords=S.g('orders')||[];
+    const o=ords.find(x=>x.id===oid);
+    if(o){viewR(oid);}else go('history','back');
+  } else {
+    const page=urlMap[p]||'home';
+    go(page,'back');
+  }
 });
 </script>
 </div><!-- /dsk-main -->
