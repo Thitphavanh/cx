@@ -1665,20 +1665,41 @@ function editPup(i){const pups=S.g('popups')||[];const p=pups[i];openEdit('ແ�
 async function delPup(i){if(!confirm('ລຶບ?'))return;const pups=S.g('popups')||[];const p=pups[i];pups.splice(i,1);S.s('popups',pups);rPupA();try{await api('DELETE','/admin/popup/'+p.id);}catch(e){console.warn('popup delete err',e);}toast('ລຶບ Popup','ok');}
 
 /* COUPON ADMIN */
-function rCouponA(){
-  const coupons=S.g('coupons')||[];const el=document.getElementById('couponList');
+async function rCouponA(){
+  const el=document.getElementById('couponList');
+  try{const fresh=await api('GET','/admin/coupons');S.s('coupons',fresh||[]);}catch(e){}
+  const coupons=S.g('coupons')||[];
   el.innerHTML=coupons.length?coupons.map((c,i)=>{const used=(c.usedBy||[]).length;const max=c.maxUses>0?c.maxUses:'∞';const qc=c.maxUses>0&&used>=c.maxUses?'color:var(--R)':'color:var(--t3)';return `<div class="irow"><div class="rinf"><div class="rnm" style="font-family:monospace">${c.code}</div><div class="rsb">${c.type==='percent'?`ຫຼຸດ ${c.value}%`:`ຫຼຸດ ${parseInt(c.value).toLocaleString()} ກີບ`} · ${c.active?'<span style="color:#16a34a">ໃຊ້ໄດ້</span>':'<span style="color:var(--R)">ປິດ</span>'}</div><div class="rsb" style="${qc}">ໃຊ້ແລ້ວ ${used}/${max} ຄົນ · 1 ບັນຊີ/1 ຄັ້ງ</div></div><div class="rack"><button class="bed" onclick="toggleCoupon(${i})">${c.active?'ປິດ':'ເປີດ'}</button><button class="bdl" onclick="delCoupon(${i})">ລຶບ</button></div></div>`;}).join(''):'<div class="empty" style="padding:16px"><p>ຍັງບໍ່ມີໂຄ້ດ</p></div>';
 }
-function addCoupon(){openEdit('ສ້າງໂຄ້ດສ່ວນລົດ',`<label>ໂຄ້ດ (ຕົວໃຫຍ່)</label><input type="text" id="f-code" placeholder="SAVE20" style="text-transform:uppercase"><label>ປະເພດ</label><select id="f-type"><option value="percent">ຫຼຸດເປີເຊັນ (%)</option><option value="fixed">ຫຼຸດລາຄາ (ກີບ)</option></select><label>ຄ່າ (ໃສ່ຕົວເລກ)</label><input type="number" id="f-val" placeholder="10 = 10% ຫຼື 5000 = 5,000 ກີບ" min="1"><label>ຈຳນວນສິດໃຊ້ (0 = ບໍ່ຈຳກັດ)</label><input type="number" id="f-max" placeholder="0 = ບໍ່ຈຳກັດ" min="0" value="0">`,async()=>{const code=V('f-code').toUpperCase();if(!code){toast('ໃສ່ໂຄ້ດ','warn');return;}const val=parseFloat(document.getElementById('f-val').value)||0;if(val<=0){toast('ໃສ່ຄ່າ','warn');return;}const coupons=S.g('coupons')||[];if(coupons.find(c=>c.code===code)){toast('ໂຄ້ດນີ້ມີຢູ່ແລ້ວ','warn');return;}const maxUses=parseInt(document.getElementById('f-max').value)||0;const nc={id:Date.now(),code,type:document.getElementById('f-type').value,value:val,active:true,maxUses,usedBy:[]};coupons.push(nc);S.s('coupons',coupons);rCouponA();try{await api('POST','/admin/coupon',nc);}catch(e){}toast('ສ້າງໂຄ້ດ','ok');});}
-async function toggleCoupon(i){const c=S.g('coupons')||[];c[i].active=!c[i].active;S.s('coupons',c);rCouponA();try{await api('PUT','/admin/coupon/'+c[i].id,{active:c[i].active});}catch(e){}toast(c[i].active?'ເປີດໂຄ້ດ':'ປິດໂຄ້ດ','ok');}
-async function delCoupon(i){if(!confirm('ລຶບ?'))return;const c=S.g('coupons')||[];const cp=c[i];c.splice(i,1);S.s('coupons',c);rCouponA();try{await api('DELETE','/admin/coupon/'+cp.id);}catch(e){console.warn('coupon delete err',e);}toast('ລຶບໂຄ້ດ','ok');}
+function addCoupon(){openEdit('ສ້າງໂຄ້ດສ່ວນລົດ',`<label>ໂຄ້ດ (ຕົວໃຫຍ່)</label><input type="text" id="f-code" placeholder="SAVE20" style="text-transform:uppercase"><label>ປະເພດ</label><select id="f-type"><option value="percent">ຫຼຸດເປີເຊັນ (%)</option><option value="fixed">ຫຼຸດລາຄາ (ກີບ)</option></select><label>ຄ່າ (ໃສ່ຕົວເລກ)</label><input type="number" id="f-val" placeholder="10 = 10% ຫຼື 5000 = 5,000 ກີບ" min="1"><label>ຈຳນວນສິດໃຊ້ (0 = ບໍ່ຈຳກັດ)</label><input type="number" id="f-max" placeholder="0 = ບໍ່ຈຳກັດ" min="0" value="0">`,async()=>{const code=V('f-code').toUpperCase();if(!code){toast('ໃສ່ໂຄ້ດ','warn');return;}const val=parseFloat(document.getElementById('f-val').value)||0;if(val<=0){toast('ໃສ່ຄ່າ','warn');return;}const coupons=S.g('coupons')||[];if(coupons.find(c=>c.code===code)){toast('ໂຄ້ດນີ້ມີຢູ່ແລ້ວ','warn');return;}const maxUses=parseInt(document.getElementById('f-max').value)||0;const nc={id:Date.now(),code,type:document.getElementById('f-type').value,value:val,active:true,maxUses,usedBy:[]};
+    showLoading('ກຳລັງບັນທຶກ...');
+    try{
+      const saved=await api('POST','/admin/coupon',nc);
+      const cps=S.g('coupons')||[];cps.push(saved||nc);S.s('coupons',cps);
+      hideLoading();rCouponA();toast('ສ້າງໂຄ້ດສຳເລັດ','ok');
+    }catch(e){hideLoading();toast('Error: '+e.message,'err');}});}
+async function toggleCoupon(i){
+  const c=S.g('coupons')||[];const newActive=!c[i].active;
+  try{await api('PUT','/admin/coupon/'+c[i].id,{active:newActive});
+    c[i].active=newActive;S.s('coupons',c);rCouponA();toast(newActive?'ເປີດໂຄ້ດ':'ປິດໂຄ້ດ','ok');
+  }catch(e){toast('Error: '+e.message,'err');}
+}
+async function delCoupon(i){if(!confirm('ລຶບ?'))return;
+  const c=S.g('coupons')||[];const cp=c[i];
+  try{await api('DELETE','/admin/coupon/'+cp.id);
+    c.splice(i,1);S.s('coupons',c);rCouponA();toast('ລຶບໂຄ້ດ','ok');
+  }catch(e){toast('Error: '+e.message,'err');}
+}
 
 /* ORDERS */
-function rOrdA(){const ords=S.g('orders')||[];const list=document.getElementById('oA');if(!ords.length){list.innerHTML='<div class="empty"><p>ຍັງບໍ່ມີ</p></div>';return;}list.innerHTML=ords.map((o,i)=>`<div class="irow" style="flex-wrap:wrap;gap:8px"><div class="rinf" style="width:100%"><div class="rnm">${o.id}</div><div class="rsb">${o.game} · ${o.pkg} · ${o.price}${o.discount&&o.discount>0?' → '+o.total:''} ກີບ</div><div class="rsb">UID: ${o.uid} · ${o.userId} · ${o.time}</div></div><div style="display:flex;gap:6px"><select onchange="upOS(${i},this.value)" style="border:1.5px solid var(--br);border-radius:8px;padding:6px 10px;font-size:12px;background:var(--bg3);color:var(--t)"><option value="pending" ${o.status==='pending'?'selected':''}>ລໍຖ້າ</option><option value="done" ${o.status==='done'?'selected':''}>ສຳເລັດ</option><option value="failed" ${o.status==='failed'?'selected':''}>ລົ້ມ</option></select><button class="bdl" onclick="delOrd(${i})">ລຶບ</button></div></div>`).join('');}
+async function rOrdA(){
+  try{const fresh=await api('GET','/admin/orders');S.s('orders',fresh||[]);}catch(e){}
+  const ords=S.g('orders')||[];const list=document.getElementById('oA');if(!ords.length){list.innerHTML='<div class="empty"><p>ຍັງບໍ່ມີ</p></div>';return;}list.innerHTML=ords.map((o,i)=>`<div class="irow" style="flex-wrap:wrap;gap:8px"><div class="rinf" style="width:100%"><div class="rnm">${o.id}</div><div class="rsb">${o.game} · ${o.pkg} · ${o.price}${o.discount&&o.discount>0?' → '+o.total:''} ກີບ</div><div class="rsb">UID: ${o.uid} · ${o.userId} · ${o.time}</div></div><div style="display:flex;gap:6px"><select onchange="upOS(${i},this.value)" style="border:1.5px solid var(--br);border-radius:8px;padding:6px 10px;font-size:12px;background:var(--bg3);color:var(--t)"><option value="pending" ${o.status==='pending'?'selected':''}>ລໍຖ້າ</option><option value="done" ${o.status==='done'?'selected':''}>ສຳເລັດ</option><option value="failed" ${o.status==='failed'?'selected':''}>ລົ້ມ</option></select><button class="bdl" onclick="delOrd(${i})">ລຶບ</button></div></div>`).join('');}
 async function upOS(i,v){const o=S.g('orders')||[];o[i].status=v;S.s('orders',o);try{await api('PUT','/admin/order/status',{id:o[i].id,status:v});}catch(e){}rOrdA();toast('ອັບເດດ','ok');}
 async function delOrd(i){if(!confirm('ລຶບ?'))return;const o=S.g('orders')||[];const ord=o[i];o.splice(i,1);S.s('orders',o);rOrdA();try{await api('DELETE','/admin/order/'+ord.id);}catch(e){console.warn(e);}toast('ລຶບ Order','ok');}
 /* USERS */
-function rUsrA(q=''){
+async function rUsrA(q=''){
+  try{const fresh=await api('GET','/admin/users');S.s('users',fresh||[]);}catch(e){}
   const users=S.g('users')||[];
   const ords=S.g('orders')||[];
   const list=document.getElementById('uA');
