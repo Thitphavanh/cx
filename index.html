@@ -1173,7 +1173,7 @@ async function initDB(){
 
 let CU=null;
 const PID={home:'pH',games:'pG',detail:'pD',receipt:'pR',auth:'pA',profile:'pP',history:'pHist',help:'pHelp',pWallet:'pWallet',confirm:'pCof'};
-const PURL={home:'/',games:'/games',auth:'/login',profile:'/profile',history:'/history',help:'/contact',pWallet:'/wallet',receipt:'/receipt'};
+const PURL={home:'/',games:'/games',auth:'/login',profile:'/profile',history:'/history',help:'/contact',pWallet:'/wallet',receipt:'/receipt',confirm:'/checkout'};
 function loadSess(){CU=S.g('sess');updNav();}
 
 // ── Real-time wallet refresh (ທຸກ 30 ວິ) ─────────────────────────────────
@@ -1468,9 +1468,11 @@ function openCof(){
   const dr=document.getElementById('cf-disc-row');dr.style.display='flex';document.getElementById('cf-disc').textContent=discAmt>0?('-'+discAmt.toLocaleString()+' ກີບ'):'-ø ກີບ';
   document.getElementById('cf-total').textContent=total.toLocaleString()+' ກີບ';
   const pbl=document.getElementById('payBalLbl');if(pbl&&CU)pbl.textContent='ຍອດເງິນຄົງເຫຼືອ: '+(CU.wallet||0).toLocaleString()+' ກີບ';
+  const gSlug=g.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-ກ-ໝ]/g,'');
+  window.history.pushState({page:'confirm',gameId:cGid},'','/checkout/'+gSlug);
   go('confirm');
 }
-function cCof(){go('detail','back');}
+function cCof(){window.history.back();}
 async function doOrder(){
   const uid=document.getElementById('uIn').value.trim();
   const gm=S.g('games')||[];const g=gm.find(x=>x.id===cGid);
@@ -2040,52 +2042,68 @@ window.onload=async()=>{
   loadSess();
   // ຖ້າມີ session ຢູ່ແລ້ວ (ບໍ່ໄດ້ login ໃໝ່) ໃຫ້ start poll ທັນທີ
   if(CU)startWalletPoll();
-  // Hide loader fast
-  setTimeout(()=>{const l=document.getElementById('loader');if(l)l.classList.add('hide');},300);
-  // Load fresh data in background (non-blocking)
-  initDB().then(()=>{
-    rHome();
-    // Update route after data loaded
-  }).catch(()=>{});
-  // Handle redirect from 404.html
+  // Handle redirect from 404.html first
   const redirectPath = sessionStorage.getItem('es_redirect');
   if(redirectPath){ sessionStorage.removeItem('es_redirect'); window.history.replaceState(null,'',redirectPath); }
-  // Route based on URL path
-  const p = window.location.pathname;
-  const urlMap={'/':'home','/games':'games','/login':'home','/profile':'profile','/history':'history','/contact':'help','/wallet':'pWallet'};
-  let startPage = urlMap[p] || 'home';
-  // Handle /game/slug
-  if(p.startsWith('/game/')){
-    const slug = p.replace('/game/','');
-    const gm = S.g('games')||[];
-    const g = gm.find(x=>x.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-ກ-ໝ]/g,'')=== slug);
-    if(g){ cGid=g.id; startPage='detail'; }
-    else { startPage='home'; }
+
+  // ຟັງຊັນ route ຕາມ URL — ເອີ້ນຫຼັງ initDB ສຳເລັດ
+  function routeByPath(){
+    const p = window.location.pathname;
+    const urlMap={'/':'home','/games':'games','/login':'home','/profile':'profile',
+      '/history':'history','/contact':'help','/wallet':'pWallet','/checkout':'confirm'};
+    let startPage = urlMap[p] || 'home';
+
+    if(p.startsWith('/game/')){
+      const slug = p.replace('/game/','');
+      const gm = S.g('games')||[];
+      const g = gm.find(x=>x.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-ກ-ໝ]/g,'')=== slug);
+      if(g){ openGame(g.id); startPage=null; }
+      else { startPage='home'; }
+    }
+    else if(p.startsWith('/receipt/')){
+      const oid = p.replace('/receipt/','');
+      // ລອງດຶງຈາກ orders ທີ່ load ມາ
+      const ords = S.g('orders')||[];
+      const o = ords.find(x=>x.id===oid);
+      if(o){ viewR(oid); startPage=null; }
+      else { startPage='history'; }
+    }
+    else if(p==='/login'&&!CU){
+      startPage='home';
+      setTimeout(()=>openAuthModal('login'),400);
+      window.history.replaceState(null,'','/');
+    }
+    if(startPage)go(startPage);
+    showPopups();
   }
-  // Handle /receipt/ORDER_ID
-  else if(p.startsWith('/receipt/')){
-    const oid = p.replace('/receipt/','');
-    const ords = S.g('orders')||[];
-    const o = ords.find(x=>x.id===oid);
-    if(o){ viewR(oid); startPage=null; }
-    else { startPage='home'; }
+
+  // ໂຫລດ data ກ່ອນ route — ຖ້າ URL ເປັນ /game/ ຫຼື /receipt/ ຕ້ອງລໍ initDB
+  const needsData = window.location.pathname.startsWith('/game/') || window.location.pathname.startsWith('/receipt/');
+  if(needsData){
+    // ລໍ data ໂຫລດກ່ອນ ແລ້ວຄ່ອຍ route
+    setTimeout(()=>{const l=document.getElementById('loader');if(l)l.classList.add('hide');},800);
+    initDB().then(()=>{ routeByPath(); }).catch(()=>{ routeByPath(); });
+  } else {
+    // ໜ້າທົ່ວໄປ — route ທັນທີ ໂຫລດ data background
+    setTimeout(()=>{const l=document.getElementById('loader');if(l)l.classList.add('hide');},300);
+    routeByPath();
+    initDB().then(()=>{ rHome(); }).catch(()=>{});
   }
-  if(startPage)go(startPage);showPopups();
-  // If URL was /login, open auth modal
-  if(window.location.pathname==='/login'&&!CU){
-    setTimeout(()=>openAuthModal('login'),400);
-    window.history.replaceState(null,'','/');
-  }
-  // loader hidden above
 };
 window.addEventListener('popstate',(e)=>{
   const p=window.location.pathname;
-  const urlMap={'/':'home','/games':'games','/login':'home','/profile':'profile','/history':'history','/contact':'help','/wallet':'pWallet'};
+  const urlMap={'/':'home','/games':'games','/login':'home','/profile':'profile','/history':'history','/contact':'help','/wallet':'pWallet','/checkout':'confirm'};
   if(p.startsWith('/game/')){
     const slug=p.replace('/game/','');
     const gm=S.g('games')||[];
     const g=gm.find(x=>x.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-ກ-ໝ]/g,'')===slug);
-    if(g){cGid=g.id;go('detail','back');}else go('home','back');
+    if(g){openGame(g.id);}else go('home','back');
+  } else if(p.startsWith('/checkout/')){
+    // back to detail ຂອງ game ນັ້ນ
+    const slug=p.replace('/checkout/','');
+    const gm=S.g('games')||[];
+    const g=gm.find(x=>x.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-ກ-ໝ]/g,'')===slug);
+    if(g&&cGid===g.id){go('confirm','back');}else go('home','back');
   } else if(p.startsWith('/receipt/')){
     const oid=p.replace('/receipt/','');
     const ords=S.g('orders')||[];
