@@ -501,8 +501,8 @@ input,button,select{font-family:inherit;}img{display:block;}::-webkit-scrollbar{
 
 /* Promo Cards */
 .promo-wrap{padding:0 12px 4px;overflow:hidden;}
-.promo-track{display:flex;gap:12px;transition:transform .45s cubic-bezier(.4,0,.2,1);}
-.promo-card{flex-shrink:0;width:calc(100% - 24px);border-radius:18px;overflow:hidden;position:relative;min-height:120px;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.15);}
+.promo-track{display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1);}
+.promo-card{flex-shrink:0;width:100%;border-radius:18px;overflow:hidden;position:relative;min-height:120px;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.15);}
 .promo-card img.promo-bg{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
 .promo-card .promo-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,.1) 100%);}
 .promo-card .promo-body{position:relative;z-index:1;padding:18px 16px;display:flex;flex-direction:column;justify-content:center;min-height:120px;}
@@ -1426,6 +1426,18 @@ function fg(gid,iid){const q=document.getElementById(iid).value.toLowerCase();co
 
 /* PROMO CARDS */
 let _promoTimer=null;
+let _pSI=0; // promo current index
+function _promoSlide(n){
+  const promos=(S.g('promos')||[]).filter(p=>p.active);
+  if(!promos.length)return;
+  _pSI=((n%promos.length)+promos.length)%promos.length;
+  const track=document.getElementById('promoTrack');
+  if(track){
+    track.style.transition='transform .45s cubic-bezier(.4,0,.2,1)';
+    track.style.transform=`translateX(-${_pSI*100}%)`;
+  }
+  document.querySelectorAll('#promoDots span').forEach((d,i)=>d.classList.toggle('on',i===_pSI));
+}
 function rPromo(){
   const promos=(S.g('promos')||[]).filter(p=>p.active);
   const sec=document.getElementById('promoSection');
@@ -1434,10 +1446,7 @@ function rPromo(){
   if(!promos.length){if(sec)sec.style.display='none';return;}
   if(sec)sec.style.display='block';
   const gm=S.g('games')||[];
-  const n=promos.length;
-
-  // ── Infinite loop: clone last + first ────────────────────────────────
-  function makeCard(p){
+  track.innerHTML=promos.map(p=>{
     const g=gm.find(x=>x.id===p.game_id);
     return `<div class="promo-card" onclick="${g?`openGame(${g.id})`:''}">
       ${p.bg_img?`<img class="promo-bg" src="${p.bg_img}" onerror="this.style.display='none'">`:''}
@@ -1449,61 +1458,26 @@ function rPromo(){
         ${p.cta?`<button class="promo-cta">${p.cta}</button>`:''}
       </div>
     </div>`;
-  }
-  // [clone-last] + [real 0..n-1] + [clone-first]
-  track.innerHTML = makeCard(promos[n-1]) + promos.map(p=>makeCard(p)).join('') + makeCard(promos[0]);
-
+  }).join('');
   dots.innerHTML=promos.map((_,i)=>`<span ${i===0?'class="on"':''}></span>`).join('');
-
-  // ci = real index (0..n-1), display offset +1 เพราะมี clone-last นำหน้า
-  let ci=0;
-  const GAP=12;
-
-  function moveTo(idx, animate){
-    track.style.transition = animate ? 'transform .45s cubic-bezier(.4,0,.2,1)' : 'none';
-    track.style.transform = `translateX(calc(-${idx+1}*(100% + ${GAP}px)))`;
-    dots.querySelectorAll('span').forEach((d,i)=>d.className=i===((idx%n+n)%n)?'on':'');
-  }
-
-  // เริ่มที่ index 0 (offset 1 เพราะ clone)
-  requestAnimationFrame(()=>moveTo(0, false));
-
-  // หลัง transition ถ้าถึง clone ให้ jump แบบไม่มี animation
-  let _jumping=false;
-  track.addEventListener('transitionend', ()=>{
-    if(_jumping)return;
-    if(ci>=n){ _jumping=true; ci=ci%n; moveTo(ci,false); setTimeout(()=>_jumping=false,50); }
-    else if(ci<0){ _jumping=true; ci=((ci%n)+n)%n; moveTo(ci,false); setTimeout(()=>_jumping=false,50); }
-  });
-
-  if(_promoTimer)clearInterval(_promoTimer);
-  function startTimer(){ _promoTimer=setInterval(()=>{ ci++; moveTo(ci,true); },3000); }
-  startTimer();
-
-  // ── Touch/swipe ──────────────────────────────────────────────────────
+  _pSI=0;
+  track.style.transition='none';
+  track.style.transform='translateX(0)';
+  clearInterval(_promoTimer);
+  _promoTimer=setInterval(()=>_promoSlide(_pSI+1),3000);
+  // touch swipe — เหมือน banner
   const wrap=track.parentElement;
-  let tx=0,startX=0,dragging=false;
-  wrap.addEventListener('touchstart',e=>{
-    if(_jumping)return;
-    startX=e.touches[0].clientX; dragging=true;
-    if(_promoTimer){clearInterval(_promoTimer);_promoTimer=null;}
-    track.style.transition='none';
-  },{passive:true});
-  wrap.addEventListener('touchmove',e=>{
-    if(!dragging)return;
-    tx=e.touches[0].clientX-startX;
-    const cardW=wrap.offsetWidth+GAP;
-    track.style.transform=`translateX(${-(ci+1)*cardW+tx}px)`;
-  },{passive:true});
-  wrap.addEventListener('touchend',()=>{
-    if(!dragging)return;
-    dragging=false;
-    if(tx<-40)ci++;
-    else if(tx>40)ci--;
-    tx=0;
-    moveTo(ci,true);
-    startTimer();
-  });
+  const gX=e=>e.touches?e.touches[0].clientX:e.clientX;
+  let _ptx=0,_ptouching=false;
+  wrap.ontouchstart=e=>{_ptouching=true;_ptx=gX(e);};
+  wrap.ontouchmove=e=>{if(_ptouching){_ptx=gX(e)-_ptx;e.preventDefault();}};
+  wrap.ontouchend=e=>{
+    const dx=gX(e)-_ptx;
+    if(_ptouching&&Math.abs(dx)>44){
+      _promoSlide(dx<0?_pSI+1:_pSI-1);
+    }
+    _ptouching=false;_ptx=0;
+  };
 }
 
 // Admin Promo
