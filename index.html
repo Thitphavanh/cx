@@ -1601,40 +1601,46 @@ function rPromo(){
   track.style.transform='translateX(0)';
   clearInterval(_promoTimer);
   _promoTimer=setInterval(()=>_promoGoTo(_pSI+1),3000);
-  // touch swipe — follow finger + snap on release
+  // touch swipe
   const wrap=track.parentElement;
-  let _pStartX=0,_pStartY=0,_pDX=0,_pTouching=false,_pLocked=false;
+  let _pSX=0,_pSY=0,_pDX=0,_pDir=null;
+  function _pReset(){
+    _pDX=0;_pDir=null;
+    track.style.transition='transform .4s cubic-bezier(.4,0,.2,1)';
+    _promoGoTo(_pSI);
+  }
   wrap.addEventListener('touchstart',e=>{
-    _pStartX=e.touches[0].clientX;
-    _pStartY=e.touches[0].clientY;
-    _pDX=0;_pTouching=true;_pLocked=false;
+    _pSX=e.touches[0].clientX;
+    _pSY=e.touches[0].clientY;
+    _pDX=0;_pDir=null;
     track.style.transition='none';
   },{passive:true});
   wrap.addEventListener('touchmove',e=>{
-    if(!_pTouching)return;
-    const dx=e.touches[0].clientX-_pStartX;
-    const dy=e.touches[0].clientY-_pStartY;
-    // ถ้า scroll แนวตั้งมากกว่า ไม่ขัด
-    if(!_pLocked&&Math.abs(dy)>Math.abs(dx)){_pTouching=false;track.style.transition='transform .45s cubic-bezier(.4,0,.2,1)';_promoGoTo(_pSI);return;}
-    _pLocked=true;
+    const dx=e.touches[0].clientX-_pSX;
+    const dy=e.touches[0].clientY-_pSY;
+    if(!_pDir){
+      if(Math.abs(dx)<6&&Math.abs(dy)<6)return;
+      _pDir=Math.abs(dx)>Math.abs(dy)?'h':'v';
+    }
+    if(_pDir==='v')return; // scroll แนวตั้ง — ไม่ขัด
     _pDX=dx;
-    // follow finger
-    const cardW=wrap.offsetWidth+12;
     track.style.transform=`translateX(calc(-${_pSI}*(100% + 12px) + ${_pDX}px))`;
   },{passive:true});
-  wrap.addEventListener('touchend',()=>{
-    if(!_pTouching){return;}
-    _pTouching=false;
-    track.style.transition='transform .45s cubic-bezier(.4,0,.2,1)';
-    if(Math.abs(_pDX)>50){
-      clearInterval(_promoTimer);
-      _promoGoTo(_pDX<0?_pSI+1:_pSI-1);
-      _promoTimer=setInterval(()=>_promoGoTo(_pSI+1),3000);
-    } else {
-      _promoGoTo(_pSI); // snap back
+  const _pEnd=()=>{
+    if(_pDir==='h'){
+      track.style.transition='transform .4s cubic-bezier(.4,0,.2,1)';
+      if(Math.abs(_pDX)>30){
+        clearInterval(_promoTimer);
+        _promoGoTo(_pDX<0?_pSI+1:_pSI-1);
+        _promoTimer=setInterval(()=>_promoGoTo(_pSI+1),3000);
+      } else {
+        _promoGoTo(_pSI);
+      }
     }
-    _pDX=0;
-  });
+    _pDX=0;_pDir=null;
+  };
+  wrap.addEventListener('touchend',_pEnd,{passive:true});
+  wrap.addEventListener('touchcancel',_pEnd,{passive:true});
 }
 
 // Admin Promo
