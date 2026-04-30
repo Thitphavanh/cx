@@ -688,7 +688,22 @@ input,button,select{font-family:inherit;}img{display:block;}::-webkit-scrollbar{
         <div id="uA"></div>
       </div>
     </div>
-    <div class="asec" id="as-ct"><div class="admc"><h3>ຕັ້ງຄ່າການຕິດຕໍ່</h3><div id="ctA"></div><button class="bad" style="margin-top:12px;background:var(--R);color:#fff" onclick="saveCt()">ບັນທຶກທັງໝົດ</button></div></div>
+    <div class="asec" id="as-ct">
+      <div class="admc">
+        <h3>ຕັ້ງຄ່າເວັບໄຊ</h3>
+        <div id="ctA">
+          <label>URL ຮູບ QR ເຕີມເງິນ</label>
+          <input type="text" id="ctQR" placeholder="https://..." style="margin-bottom:12px">
+          <label>Facebook</label>
+          <input type="text" id="ctFB" placeholder="Facebook URL">
+          <label>TikTok</label>
+          <input type="text" id="ctTT" placeholder="TikTok URL">
+          <label>WhatsApp (ເບີໂທ)</label>
+          <input type="text" id="ctWA" placeholder="WhatsApp Number">
+        </div>
+        <button class="bad" style="margin-top:12px;background:var(--R);color:#fff" onclick="saveCt()">ບັນທຶກທັງໝົດ</button>
+      </div>
+    </div>
     <div class="asec" id="as-wondd">
       <div class="admc">
         <h3>WonDD API Status</h3>
@@ -1041,10 +1056,15 @@ input,button,select{font-family:inherit;}img{display:block;}::-webkit-scrollbar{
       </div>
       
       <div id="qrBox" style="display:none;animation:pIn .3s ease both">
-        <div style="background:#fff;padding:15px;border-radius:20px;display:inline-block;border:1px solid var(--br);margin-bottom:14px">
-          <img src="https://img5.pic.in.th/file/secure-sv1/qr-sample.png" id="mainQR" style="width:200px;height:200px;object-fit:contain">
+        <div style="background:#fff;padding:15px;border-radius:20px;display:inline-block;border:1px solid var(--br);margin-bottom:14px;position:relative">
+          <img src="https://img5.pic.in.th/file/secure-sv1/qr-ldb.jpg" id="mainQR" style="width:220px;height:auto;border-radius:10px">
+          <!-- ປ້າຍບອກຍອດເງິນແບບເຫັນຈະແຈ້ງ -->
+          <div style="margin-top:10px;background:var(--bg3);padding:10px;border-radius:12px;border:1.5px dashed var(--R)">
+            <div style="font-size:11px;color:var(--t3)">ຍອດເງິນທີ່ຕ້ອງໂອນ</div>
+            <div style="font-size:20px;font-weight:900;color:var(--R)" id="qrAmtShow">0 ກີບ</div>
+          </div>
         </div>
-        <div style="font-size:12px;color:var(--t3);line-height:1.5;margin-bottom:20px">ສະແກນ QR ແລະ ໂອນເງິນຕາມຍອດທີ່ລະບຸ<br>ຈາກນັ້ນແນບຮູບໃບໂອນ (Slip) ດ້ານລຸ່ມ</div>
+        <div style="font-size:12px;color:var(--t3);line-height:1.5;margin-bottom:20px">ກະລຸນາໂອນເງິນໃຫ້ຕົງຕາມຍອດດ້ານເທິງ<br>ແລ້ວແນບຮູບໃບໂອນ (Slip) ຢູ່ລຸ່ມນີ້</div>
         
         <div id="slipPreview" style="display:none;margin-bottom:14px">
           <img src="" id="slipImg" style="width:120px;height:160px;object-fit:cover;border-radius:12px;margin:0 auto;border:2px solid var(--R)">
@@ -1254,7 +1274,7 @@ input,button,select{font-family:inherit;}img{display:block;}::-webkit-scrollbar{
 /* ======================================================
    API Helper — all calls go to Node.js backend
    ====================================================== */
-const API_BASE = 'https://api.easystores.xyz/api';
+const API_BASE = 'http://localhost:3000/api';
 let _apiToken = null; // JWT stored in memory (not localStorage)
 
 function setToken(t){ _apiToken = t; }
@@ -1312,11 +1332,28 @@ async function doTopupCode(){
 }
 
 let _ta=0; let _slipUrl='';
+async function openWalletQR(){
+  go('pWalletQR');
+  try {
+    const res = await api('GET', '/admin/settings/topup');
+    if(res && res.url) document.getElementById('mainQR').src = res.url;
+  } catch(e) { console.warn(e); }
+}
+
 function setTA(v,el){
   _ta=parseInt(v)||0; document.getElementById('customTA').value=_ta||'';
   document.querySelectorAll('#topupAmts .atb').forEach(b=>b.style.borderColor='var(--br)');
   if(el) el.style.borderColor='var(--R)';
-  document.getElementById('qrBox').style.display=_ta>=5000?'block':'none';
+  
+  const qrBox = document.getElementById('qrBox');
+  const qrAmtShow = document.getElementById('qrAmtShow');
+  
+  if(_ta >= 5000) {
+    qrBox.style.display = 'block';
+    qrAmtShow.textContent = _ta.toLocaleString() + ' ກີບ';
+  } else {
+    qrBox.style.display = 'none';
+  }
 }
 function handleSlip(el){
   const file=el.files[0]; if(!file)return;
@@ -2276,8 +2313,28 @@ async function confirmDelUser(i){
   toast('ລຶບ user ແລ້ວ','ok');
 }
 /* CONTACTS */
-function rCtA(){const ct=S.g('contacts')||{};document.getElementById('ctFB').value=ct.fb||'';document.getElementById('ctTT').value=ct.tt||'';document.getElementById('ctWA').value=ct.wa||'';}
-async function saveContacts(){const ct={fb:document.getElementById('ctFB').value,tt:document.getElementById('ctTT').value,wa:document.getElementById('ctWA').value};S.s('contacts',ct);try{await api('PUT','/admin/settings/contacts',ct);}catch(e){}toast('ບັນທຶກແລ້ວ','ok');}
+async function rCtA(){
+  try {
+    const ct = await api('GET', '/admin/settings/contacts');
+    const qr = await api('GET', '/admin/settings/topup');
+    S.s('contacts', ct); S.s('topup_qr', qr);
+    document.getElementById('ctFB').value = ct.fb || '';
+    document.getElementById('ctTT').value = ct.tt || '';
+    document.getElementById('ctWA').value = ct.wa || '';
+    document.getElementById('ctQR').value = qr.url || '';
+  } catch(e) {}
+}
+async function saveCt(){
+  const fb = V('ctFB'), tt = V('ctTT'), wa = V('ctWA'), qr = V('ctQR');
+  showLoading('ກຳລັງບັນທຶກ...');
+  try {
+    await Promise.all([
+      api('POST', '/admin/settings/contacts', { fb, tt, wa }),
+      api('POST', '/admin/settings/topup', { url: qr })
+    ]);
+    hideLoading(); toast('ບັນທຶກສຳເລັດ', 'ok');
+  } catch(e) { hideLoading(); toast(e.message, 'err'); }
+}
 /* EDIT SHEET */
 let eSvFn=null;
 function V(id){return(document.getElementById(id)&&document.getElementById(id).value||'').trim();}
